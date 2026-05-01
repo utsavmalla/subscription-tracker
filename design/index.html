@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SubTrack | Subscription Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand-block">
+          <div class="brand-mark">S</div>
+          <div>
+            <p class="eyebrow">Personal finance companion</p>
+            <h1>SubTrack</h1>
+            <p class="brand-copy">Track renewals, cancellations, and surprise charges before they stack up.</p>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="Primary">
+          <button class="nav-link is-active" data-route="dashboard">Dashboard</button>
+          <button class="nav-link" data-route="subscriptions">Subscriptions</button>
+          <button class="nav-link" data-route="add">Add Subscription</button>
+          <button class="nav-link" data-route="import-export">Import / Export</button>
+          <button class="nav-link" data-route="alerts">Alerts</button>
+          <button class="nav-link" data-route="settings">Settings</button>
+        </nav>
+
+        <section class="sidebar-card">
+          <p class="eyebrow">Today at a glance</p>
+          <h2 id="sidebar-overview-title">0 items need attention</h2>
+          <p id="sidebar-overview-copy">Everything is quiet for now.</p>
+        </section>
+      </aside>
+
+      <div class="mobile-nav-bar">
+        <button class="mobile-menu-button" id="mobile-menu-button" aria-expanded="false" aria-controls="mobile-nav">Menu</button>
+        <div>
+          <p class="eyebrow">SubTrack</p>
+          <strong>Subscription Tracker</strong>
+        </div>
+      </div>
+
+      <div class="mobile-nav" id="mobile-nav" hidden>
+        <button class="nav-link is-active" data-route="dashboard">Dashboard</button>
+        <button class="nav-link" data-route="subscriptions">Subscriptions</button>
+        <button class="nav-link" data-route="add">Add Subscription</button>
+        <button class="nav-link" data-route="import-export">Import / Export</button>
+        <button class="nav-link" data-route="alerts">Alerts</button>
+        <button class="nav-link" data-route="settings">Settings</button>
+      </div>
+
+      <main class="content">
+        <section class="view is-active" data-view="dashboard">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Overview</p>
+              <h2>Subscription Dashboard</h2>
+              <p class="subtle" id="dashboard-date-line"></p>
+            </div>
+            <div class="top-actions">
+              <button class="button button-secondary" data-route="import-export">Import CSV</button>
+              <button class="button button-primary" data-route="add">+ Add Subscription</button>
+            </div>
+          </header>
+
+          <section class="hero-card">
+            <div>
+              <p class="eyebrow">Focus for this week</p>
+              <h3>What needs your attention right now?</h3>
+              <p>
+                This implementation stays faithful to the wireframe’s calm, spreadsheet-friendly layout while making the
+                dashboard interactive: statuses are computed from dates, metrics update live, and every list is powered
+                by the same subscription data model.
+              </p>
+              <div class="hero-notes">
+                <span class="chip chip-soft">Live status logic</span>
+                <span class="chip chip-soft">Upcoming, overdue, expired views</span>
+                <span class="chip chip-soft">Responsive desktop and mobile layout</span>
+              </div>
+            </div>
+            <div class="hero-stats" id="hero-stats"></div>
+          </section>
+
+          <section class="metric-grid" id="metric-grid"></section>
+
+          <section class="dashboard-grid">
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Next 7 days</p>
+                  <h3>Upcoming Renewals</h3>
+                </div>
+                <button class="text-button" data-route="alerts">View all</button>
+              </div>
+              <div class="stack-list" id="upcoming-list"></div>
+            </article>
+
+            <article class="panel panel-warm">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Needs action</p>
+                  <h3>Overdue and Expired</h3>
+                </div>
+                <button class="text-button" data-route="subscriptions">Resolve</button>
+              </div>
+              <div class="stack-list" id="attention-list"></div>
+            </article>
+          </section>
+
+          <section class="dashboard-grid dashboard-grid-bottom">
+            <article class="panel panel-large">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Quick filters</p>
+                  <h3>Subscription Snapshot</h3>
+                </div>
+                <button class="text-button" id="clear-dashboard-filters">Clear all</button>
+              </div>
+
+              <div class="filter-row">
+                <label class="input-shell search-shell">
+                  <span>Search</span>
+                  <input id="dashboard-search" type="search" placeholder="Find by service name" />
+                </label>
+                <label class="input-shell compact-shell">
+                  <span>Status</span>
+                  <select id="dashboard-status-filter"></select>
+                </label>
+                <label class="input-shell compact-shell">
+                  <span>Cycle</span>
+                  <select id="dashboard-cycle-filter"></select>
+                </label>
+              </div>
+
+              <div class="table-shell">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Service</th>
+                      <th>Amount</th>
+                      <th>Cycle</th>
+                      <th>Next Date</th>
+                      <th>Status</th>
+                      <th>Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-table-body"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Recent activity</p>
+                  <h3>Latest Updates</h3>
+                </div>
+              </div>
+              <div class="stack-list" id="activity-list"></div>
+            </article>
+          </section>
+        </section>
+
+        <section class="view" data-view="subscriptions">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Management</p>
+              <h2>All Subscriptions</h2>
+              <p class="subtle">Search, filter, sort, and update records without losing the spreadsheet-style scanability.</p>
+            </div>
+            <div class="top-actions">
+              <button class="button button-secondary" id="export-json-button">Export JSON</button>
+              <button class="button button-primary" data-route="add">Add Subscription</button>
+            </div>
+          </header>
+
+          <article class="panel">
+            <div class="filter-toolbar">
+              <label class="input-shell search-shell">
+                <span>Search</span>
+                <input id="subscriptions-search" type="search" placeholder="Netflix, Figma, Domain..." />
+              </label>
+              <label class="input-shell compact-shell">
+                <span>Status</span>
+                <select id="subscriptions-status-filter"></select>
+              </label>
+              <label class="input-shell compact-shell">
+                <span>Cycle</span>
+                <select id="subscriptions-cycle-filter"></select>
+              </label>
+              <label class="input-shell compact-shell">
+                <span>Done</span>
+                <select id="subscriptions-done-filter">
+                  <option value="all">All</option>
+                  <option value="true">Done</option>
+                  <option value="false">Not done</option>
+                </select>
+              </label>
+              <label class="input-shell compact-shell">
+                <span>Sort</span>
+                <select id="subscriptions-sort">
+                  <option value="attention">Most urgent</option>
+                  <option value="service">Service name</option>
+                  <option value="amount-desc">Amount high to low</option>
+                  <option value="date-asc">Next date soonest</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="subscription-list" id="subscription-cards"></div>
+          </article>
+        </section>
+
+        <section class="view" data-view="add">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Create or update</p>
+              <h2 id="form-title">Add Subscription</h2>
+              <p class="subtle">Recurring plans emphasize renewal dates. One-time plans emphasize expiration dates.</p>
+            </div>
+          </header>
+
+          <form class="form-grid" id="subscription-form">
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Section 1</p>
+                  <h3>Basic Details</h3>
+                </div>
+              </div>
+              <div class="form-fields two-column">
+                <label class="input-shell">
+                  <span>Service Name</span>
+                  <input name="serviceName" required placeholder="Adobe Creative Cloud" />
+                </label>
+                <label class="input-shell">
+                  <span>Renewal Cycle</span>
+                  <select name="renewalCycle" required>
+                    <option value="Monthly">Monthly</option>
+                    <option value="Quarterly">Quarterly</option>
+                    <option value="Yearly">Yearly</option>
+                    <option value="OneTime">OneTime</option>
+                  </select>
+                </label>
+                <label class="input-shell">
+                  <span>USD Amount</span>
+                  <input name="usdAmount" type="number" step="0.01" min="0" placeholder="7.99" />
+                </label>
+                <label class="input-shell">
+                  <span>Local Amount</span>
+                  <input name="localAmount" type="number" step="0.01" min="0" placeholder="1150.56" />
+                </label>
+                <label class="input-shell">
+                  <span>Currency Code</span>
+                  <input name="currencyCode" maxlength="6" placeholder="NPR" />
+                </label>
+                <label class="input-shell">
+                  <span>Date Paid</span>
+                  <input name="datePaid" type="date" />
+                </label>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Section 2</p>
+                  <h3>Payment and Dates</h3>
+                </div>
+              </div>
+              <div class="form-fields two-column">
+                <label class="input-shell" id="next-renewal-field">
+                  <span>Next Renewal Date</span>
+                  <input name="nextRenewalDate" type="date" />
+                </label>
+                <label class="input-shell" id="expiration-field">
+                  <span>Expiration Date</span>
+                  <input name="expirationDate" type="date" />
+                </label>
+                <label class="input-shell textarea-shell full-span">
+                  <span>Remarks</span>
+                  <textarea name="remarks" rows="4" placeholder="Auto Renewal Cancel"></textarea>
+                </label>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Section 3</p>
+                  <h3>Status Helpers</h3>
+                </div>
+              </div>
+              <div class="form-helper-grid">
+                <label class="checkbox-shell">
+                  <input name="done" type="checkbox" />
+                  <span>Mark current reminder cycle as done</span>
+                </label>
+                <div class="preview-card">
+                  <span class="eyebrow">Computed status preview</span>
+                  <strong id="status-preview">Active</strong>
+                  <p id="status-preview-copy">Choose dates above to see how the system will classify this record.</p>
+                </div>
+              </div>
+              <div class="form-actions">
+                <input type="hidden" name="id" />
+                <button class="button button-secondary" type="button" id="form-reset-button">Reset</button>
+                <button class="button button-primary" type="submit">Save Subscription</button>
+              </div>
+            </article>
+          </form>
+        </section>
+
+        <section class="view" data-view="import-export">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Data portability</p>
+              <h2>Import / Export</h2>
+              <p class="subtle">This frontend includes a guided placeholder flow for CSV onboarding and JSON export.</p>
+            </div>
+          </header>
+
+          <section class="dashboard-grid dashboard-grid-bottom">
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Import</p>
+                  <h3>CSV Readiness</h3>
+                </div>
+              </div>
+              <div class="import-card">
+                <p>Expected columns: Service Name, USD, Amount, Date Paid, Renewal Cycle, Next Renewal Date, Expiration Date, Done, Remarks.</p>
+                <ul class="plain-list">
+                  <li>Use consistent date formats before upload.</li>
+                  <li>Recurring plans should include `Next Renewal Date`.</li>
+                  <li>One-time plans should include `Expiration Date`.</li>
+                </ul>
+                <button class="button button-secondary" id="sample-import-button">Load sample preview</button>
+                <div class="sample-preview" id="sample-import-preview"></div>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Export</p>
+                  <h3>Current Dataset</h3>
+                </div>
+              </div>
+              <div class="export-card">
+                <p id="export-summary"></p>
+                <button class="button button-primary" id="download-export-button">Download JSON snapshot</button>
+              </div>
+            </article>
+          </section>
+        </section>
+
+        <section class="view" data-view="alerts">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Action center</p>
+              <h2>Alerts</h2>
+              <p class="subtle">A single place to focus on what is upcoming, due today, overdue, or expired.</p>
+            </div>
+          </header>
+
+          <article class="panel">
+            <div class="tab-row" id="alert-tabs">
+              <button class="tab is-active" data-alert-filter="all">All</button>
+              <button class="tab" data-alert-filter="Upcoming">Upcoming</button>
+              <button class="tab" data-alert-filter="DueToday">Due Today</button>
+              <button class="tab" data-alert-filter="Overdue">Overdue</button>
+              <button class="tab" data-alert-filter="Expired">Expired</button>
+            </div>
+            <div class="stack-list" id="alerts-list"></div>
+          </article>
+        </section>
+
+        <section class="view" data-view="settings">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Preferences</p>
+              <h2>Settings</h2>
+              <p class="subtle">A light MVP settings surface that mirrors the product spec without overcomplicating it.</p>
+            </div>
+          </header>
+
+          <section class="dashboard-grid dashboard-grid-bottom">
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Display</p>
+                  <h3>Defaults</h3>
+                </div>
+              </div>
+              <div class="settings-list">
+                <div class="setting-row">
+                  <div>
+                    <strong>Primary currency</strong>
+                    <p class="subtle">Show local totals in NPR alongside USD amounts.</p>
+                  </div>
+                  <span class="chip">NPR</span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <strong>Reminder window</strong>
+                    <p class="subtle">Upcoming status begins 7 days before renewal.</p>
+                  </div>
+                  <span class="chip">7 days</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Roadmap placeholders</p>
+                  <h3>Future options</h3>
+                </div>
+              </div>
+              <div class="settings-list">
+                <div class="setting-row">
+                  <div>
+                    <strong>Email reminders</strong>
+                    <p class="subtle">Ready for backend integration later.</p>
+                  </div>
+                  <span class="chip chip-soft">Coming later</span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <strong>Multi-user profiles</strong>
+                    <p class="subtle">Keep scope single-user for MVP clarity.</p>
+                  </div>
+                  <span class="chip chip-soft">Not in MVP</span>
+                </div>
+              </div>
+            </article>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <template id="empty-state-template">
+      <div class="empty-state">
+        <strong>No records found</strong>
+        <p>Try clearing filters or adding a new subscription.</p>
+      </div>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Subscription Tracker Wireframe</title>
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --paper: #fffdf8;
+        --panel: #fffaf0;
+        --ink: #1d2939;
+        --muted: #667085;
+        --line: #e7dccb;
+        --primary: #0f766e;
+        --primary-soft: #d9f3ee;
+        --active: #1f8f5f;
+        --upcoming: #d18b00;
+        --due: #c96a00;
+        --overdue: #c73b2a;
+        --expired: #7a5c54;
+        --shadow: 0 18px 48px rgba(42, 33, 24, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 30%),
+          radial-gradient(circle at bottom right, rgba(209, 139, 0, 0.12), transparent 24%),
+          var(--bg);
+      }
+
+      .app {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 260px 1fr;
+      }
+
+      .sidebar {
+        background: #17332f;
+        color: #f8f4ee;
+        padding: 28px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .brand {
+        padding-bottom: 18px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      }
+
+      .brand h1 {
+        margin: 0;
+        font-size: 1.55rem;
+        letter-spacing: 0.02em;
+      }
+
+      .brand p,
+      .nav small,
+      .profile p,
+      .widget p,
+      .subtle,
+      .table td,
+      .filter,
+      .pill {
+        color: inherit;
+      }
+
+      .brand p,
+      .profile p {
+        margin: 8px 0 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: rgba(248, 244, 238, 0.72);
+      }
+
+      .nav {
+        display: grid;
+        gap: 10px;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: transparent;
+        border: 1px solid transparent;
+      }
+
+      .nav a.active {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+
+      .sidebar-card {
+        margin-top: auto;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
+        padding: 16px;
+      }
+
+      .main {
+        padding: 26px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+
+      .headline h2 {
+        margin: 0;
+        font-size: 2rem;
+        line-height: 1.1;
+      }
+
+      .headline p {
+        margin: 8px 0 0;
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 999px;
+        padding: 12px 18px;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+        box-shadow: var(--shadow);
+      }
+
+      .btn-secondary {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        color: var(--ink);
+      }
+
+      .hero {
+        background: linear-gradient(135deg, rgba(15, 118, 110, 0.12), rgba(255, 250, 240, 0.9));
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 22px;
+        margin-bottom: 22px;
+      }
+
+      .hero-copy h3,
+      .panel h3 {
+        margin: 0 0 10px;
+        font-size: 1.25rem;
+      }
+
+      .hero-copy p,
+      .panel p,
+      .meta,
+      .table th,
+      .table td,
+      .alert-meta {
+        line-height: 1.5;
+      }
+
+      .hero-copy p,
+      .meta,
+      .panel p,
+      .table td,
+      .table th,
+      .alert-meta {
+        color: var(--muted);
+      }
+
+      .hero-stats {
+        display: grid;
+        gap: 12px;
+      }
+
+      .metric {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 16px 18px;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 1.8rem;
+        color: var(--ink);
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+
+      .summary {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+      }
+
+      .summary .label {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .summary .value {
+        display: block;
+        margin-top: 10px;
+        font-size: 2rem;
+      }
+
+      .summary .accent {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        background: var(--primary-soft);
+        color: var(--primary);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1.3fr 0.9fr;
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+
+      .panel {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        padding: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .mini-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.95rem;
+      }
+
+      .alert-list,
+      .recent-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .alert-item,
+      .recent-item {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 14px 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .alert-item strong,
+      .recent-item strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .status {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .status.upcoming {
+        background: rgba(209, 139, 0, 0.14);
+        color: var(--upcoming);
+      }
+
+      .status.overdue {
+        background: rgba(199, 59, 42, 0.13);
+        color: var(--overdue);
+      }
+
+      .status.active {
+        background: rgba(31, 143, 95, 0.14);
+        color: var(--active);
+      }
+
+      .status.expired {
+        background: rgba(122, 92, 84, 0.12);
+        color: var(--expired);
+      }
+
+      .price {
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .filterbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .filter {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 10px 14px;
+        color: var(--muted);
+      }
+
+      .table-wrap {
+        overflow: auto;
+        border-radius: 20px;
+        border: 1px solid var(--line);
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--paper);
+      }
+
+      .table th,
+      .table td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid #efe5d7;
+      }
+
+      .table th {
+        font-size: 0.92rem;
+      }
+
+      .table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .tag {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        background: #f3e7d3;
+        color: #8a5a13;
+      }
+
+      @media (max-width: 1080px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          display: none;
+        }
+
+        .hero,
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .cards {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 700px) {
+        .main {
+          padding: 16px;
+        }
+
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .cards {
+          grid-template-columns: 1fr;
+        }
+
+        .table {
+          min-width: 760px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <h1>SubTrack</h1>
+          <p>Simple visibility for recurring bills, one-time access, and upcoming renewals.</p>
+        </div>
+
+        <nav class="nav">
+          <a class="active" href="#">Dashboard</a>
+          <a href="#">Subscriptions</a>
+          <a href="#">Add Subscription</a>
+          <a href="#">Import / Export</a>
+          <a href="#">Alerts</a>
+          <a href="#">Settings</a>
+        </nav>
+
+        <div class="sidebar-card">
+          <strong>Today at a glance</strong>
+          <p>2 services are overdue and 6 renewals are coming up in the next 7 days.</p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="topbar">
+          <div class="headline">
+            <h2>Subscription Dashboard</h2>
+            <p>Thursday, April 16, 2026 • Track attention-needed renewals before they become surprise charges.</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary">Import CSV</button>
+            <button class="btn btn-primary">+ Add Subscription</button>
+          </div>
+        </div>
+
+        <section class="hero">
+          <div class="hero-copy">
+            <h3>What needs your attention right now?</h3>
+            <p>
+              Keep the dashboard focused on three things: what is due soon, what is already overdue, and how much you are
+              committing each month.
+            </p>
+            <p class="meta">
+              This wireframe favors clear alert states, fast scanning, and a spreadsheet-friendly table for larger data sets.
+            </p>
+          </div>
+          <div class="hero-stats">
+            <div class="metric">
+              <strong>$142.80</strong>
+              <span>Estimated monthly recurring spend</span>
+            </div>
+            <div class="metric">
+              <strong>8 items</strong>
+              <span>Need review this week</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="cards">
+          <div class="summary">
+            <span class="label">Total Subscriptions</span>
+            <strong class="value">27</strong>
+            <span class="accent">Personal overview</span>
+          </div>
+          <div class="summary">
+            <span class="label">Active</span>
+            <strong class="value" style="color: var(--active)">16</strong>
+            <span class="accent">Healthy records</span>
+          </div>
+          <div class="summary">
+            <span class="label">Upcoming</span>
+            <strong class="value" style="color: var(--upcoming)">6</strong>
+            <span class="accent">Next 7 days</span>
+          </div>
+          <div class="summary">
+            <span class="label">Overdue</span>
+            <strong class="value" style="color: var(--overdue)">2</strong>
+            <span class="accent">Needs action</span>
+          </div>
+          <div class="summary">
+            <span class="label">Expired</span>
+            <strong class="value" style="color: var(--expired)">3</strong>
+            <span class="accent">Access ended</span>
+          </div>
+        </section>
+
+        <section class="layout">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Upcoming Renewals</h3>
+              <a class="mini-link" href="#">View all</a>
+            </div>
+            <div class="alert-list">
+              <div class="alert-item">
+                <div>
+                  <strong>Netflix</strong>
+                  <div class="alert-meta">Renews Apr 19 • Monthly</div>
+                </div>
+                <div>
+                  <span class="status upcoming">Upcoming</span>
+                  <div class="price">$7.99</div>
+                </div>
+              </div>
+              <div class="alert-item">
+                <div>
+                  <strong>Adobe Creative Cloud</strong>
+                  <div class="alert-meta">Renews Apr 21 • Yearly</div>
+                </div>
+                <div>
+                  <span class="status upcoming">Upcoming</span>
+                  <div class="price">$54.99</div>
+                </div>
+              </div>
+              <div class="alert-item">
+                <div>
+                  <strong>Spotify</strong>
+                  <div class="alert-meta">Renews Apr 22 • Monthly</div>
+                </div>
+                <div>
+                  <span class="status upcoming">Upcoming</span>
+                  <div class="price">$4.99</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Overdue Items</h3>
+              <a class="mini-link" href="#">Resolve</a>
+            </div>
+            <div class="alert-list">
+              <div class="alert-item">
+                <div>
+                  <strong>Canva Pro</strong>
+                  <div class="alert-meta">Was due Apr 13 • 3 days overdue</div>
+                </div>
+                <div>
+                  <span class="status overdue">Overdue</span>
+                  <div class="price">$12.99</div>
+                </div>
+              </div>
+              <div class="alert-item">
+                <div>
+                  <strong>Domain Renewal</strong>
+                  <div class="alert-meta">Expired Apr 14 • Requires update</div>
+                </div>
+                <div>
+                  <span class="status expired">Expired</span>
+                  <div class="price">$18.00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="layout">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Quick Filters</h3>
+              <a class="mini-link" href="#">Clear all</a>
+            </div>
+            <div class="filterbar">
+              <div class="filter">Search: netflix</div>
+              <div class="filter">Status: Upcoming</div>
+              <div class="filter">Cycle: Monthly</div>
+              <div class="filter">Done: No</div>
+              <div class="filter">Sort: Next Renewal</div>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Service</th>
+                    <th>Amount</th>
+                    <th>Cycle</th>
+                    <th>Next Renewal</th>
+                    <th>Status</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Netflix</td>
+                    <td>$7.99</td>
+                    <td>Monthly</td>
+                    <td>Apr 19, 2026</td>
+                    <td><span class="status upcoming">Upcoming</span></td>
+                    <td><span class="tag">Auto Renewal Cancel</span></td>
+                  </tr>
+                  <tr>
+                    <td>Canva Pro</td>
+                    <td>$12.99</td>
+                    <td>Monthly</td>
+                    <td>Apr 13, 2026</td>
+                    <td><span class="status overdue">Overdue</span></td>
+                    <td>Waiting for payment update</td>
+                  </tr>
+                  <tr>
+                    <td>Figma</td>
+                    <td>$15.00</td>
+                    <td>Monthly</td>
+                    <td>May 01, 2026</td>
+                    <td><span class="status active">Active</span></td>
+                    <td>Team removed</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Recent Updates</h3>
+              <a class="mini-link" href="#">Activity</a>
+            </div>
+            <div class="recent-list">
+              <div class="recent-item">
+                <div>
+                  <strong>You updated Adobe Creative Cloud</strong>
+                  <div class="alert-meta">Next renewal changed to Apr 21, 2026</div>
+                </div>
+                <div class="alert-meta">10m ago</div>
+              </div>
+              <div class="recent-item">
+                <div>
+                  <strong>CSV import completed</strong>
+                  <div class="alert-meta">14 subscriptions imported successfully</div>
+                </div>
+                <div class="alert-meta">Yesterday</div>
+              </div>
+              <div class="recent-item">
+                <div>
+                  <strong>Domain Renewal marked done</strong>
+                  <div class="alert-meta">Reminder cycle completed by user</div>
+                </div>
+                <div class="alert-meta">Yesterday</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

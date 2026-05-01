@@ -1,0 +1,170 @@
+# Subscription Tracker TODOs
+
+This checklist is derived from:
+- `md/spec_subscription_tracker_mvp.md`
+- `md/ui_layout_subscription_tracker.md`
+- `md/figma_draft_subscription_tracker.md`
+- Existing Figma design: https://www.figma.com/design/m5qI2GvjNYMeE1PSxEIMWp
+
+## Milestone 1: Project foundation
+
+- [x] Decide final repo structure for frontend, backend, shared types, and database files.
+- [x] Scaffold the Next.js frontend app.
+- [x] Add Tailwind CSS and base app shell styling.
+- [x] Scaffold the NestJS backend API.
+- [x] Configure PostgreSQL connection settings.
+- [x] Add Prisma ORM.
+- [x] Create environment variable examples for local development.
+- [x] Add basic lint, format, and build scripts.
+
+## Milestone 2: Design handoff and frontend reference
+
+- [x] Use existing Figma design as the visual source of truth.
+- [x] Use `md/figma_draft_subscription_tracker.md` as the implementation reference.
+- [x] Confirm core screen coverage: dashboard, subscriptions, add subscription, import/export, alerts, and mobile dashboard.
+- [ ] Extract final frontend tokens for color, typography, spacing, radius, and shadow from the design.
+- [ ] Map reusable UI elements from the design to frontend components.
+
+## Milestone 3: Dashboard UI
+
+- [ ] Build desktop app shell with sidebar navigation.
+- [ ] Build mobile top header.
+- [ ] Create dashboard page.
+- [ ] Add summary metric cards for total, active, upcoming, overdue, and expired.
+- [ ] Add upcoming renewals panel.
+- [ ] Add overdue items panel.
+- [ ] Add monthly spend estimate widget.
+- [ ] Add recent updates widget.
+- [ ] Add compact subscriptions table preview.
+- [ ] Add responsive mobile card layout.
+
+## Milestone 4: Subscription management UI
+
+- [ ] Create subscriptions list page.
+- [ ] Add search bar.
+- [ ] Add status filter.
+- [ ] Add renewal cycle filter.
+- [ ] Add done-state filter.
+- [ ] Add date range filter.
+- [ ] Add sortable data table for desktop.
+- [ ] Add stacked subscription cards for mobile.
+- [ ] Add row actions: view, edit, mark done, and delete.
+- [ ] Add confirm delete modal.
+- [ ] Add toast messages for create, update, delete, import, and export.
+
+## Milestone 5: Create, edit, and detail flows
+
+- [ ] Build shared create/edit subscription form.
+- [ ] Add basic details fields.
+- [ ] Add payment and date fields.
+- [ ] Add done checkbox.
+- [ ] Add computed status preview.
+- [ ] Add remarks textarea.
+- [ ] Emphasize expiration date for one-time subscriptions.
+- [ ] Emphasize next renewal date for recurring subscriptions.
+- [ ] Add `Save Subscription`, `Save and Add Another`, and `Cancel` actions.
+- [ ] Build subscription detail page or drawer.
+- [ ] Show full remarks and cancellation badges in detail view.
+
+## Milestone 6: Alerts and reminders UI
+
+- [ ] Highlight upcoming, due today, overdue, and expired records in the UI.
+- [ ] Create alerts page.
+- [ ] Add alert tabs for upcoming, due today, overdue, expired, and completed.
+- [ ] Add quick actions from alert rows.
+- [ ] Support marking alert tasks as done.
+
+## Milestone 7: Settings and polish
+
+- [ ] Create lightweight settings page.
+- [ ] Add default currency display setting placeholder.
+- [ ] Add reminder window setting placeholder.
+- [ ] Add future email reminder toggle placeholder.
+- [ ] Add empty states for no subscriptions, no overdue items, and no search results.
+- [ ] Add loading skeletons for dashboard and tables.
+- [ ] Add API and form error states.
+- [ ] Verify mobile responsiveness across core screens.
+
+## Milestone 8: Data model and status logic
+
+- [ ] Define `Subscription` Prisma model.
+- [ ] Define subscription enums for renewal cycle, status, and alert state.
+- [ ] Add optional `ReminderEvent` Prisma model.
+- [ ] Create initial Prisma migration.
+- [ ] Implement status calculation for recurring subscriptions.
+- [ ] Implement status calculation for one-time subscriptions.
+- [ ] Recalculate status on create and update.
+- [ ] Add tests for status logic edge cases.
+- [ ] Ensure `Auto Renewal Cancel` remarks remain visible without changing computed status.
+
+## Milestone 9: Backend API
+
+- [ ] Create `subscriptions` module.
+- [ ] Create `dashboard` module.
+- [ ] Create `imports` module.
+- [ ] Create `reminders` module.
+- [ ] Implement `GET /subscriptions`.
+- [ ] Implement `GET /subscriptions/:id`.
+- [ ] Implement `POST /subscriptions`.
+- [ ] Implement `PUT /subscriptions/:id`.
+- [ ] Implement `DELETE /subscriptions/:id`.
+- [ ] Implement mark-done quick action.
+- [ ] Implement `GET /dashboard/summary`.
+- [ ] Add validation for required fields, dates, and non-negative amounts.
+- [ ] Add sorting by renewal date, expiration date, amount, and updated date.
+- [ ] Add filters for status, renewal cycle, done state, date range, and service search.
+
+## Milestone 10: CSV import and export
+
+- [ ] Implement `POST /subscriptions/import`.
+- [ ] Implement `GET /subscriptions/export`.
+- [ ] Map spreadsheet columns to subscription fields.
+- [ ] Validate imported rows before saving.
+- [ ] Show import errors without blocking valid rows where possible.
+- [ ] Add import preview support for the frontend.
+- [ ] Export all subscriptions to CSV.
+- [ ] Export filtered subscriptions to CSV.
+
+## Milestone 11: Backend reminders and jobs
+
+- [ ] Add daily status refresh job.
+- [ ] Make reminder generation idempotent.
+
+## Milestone 12: Deployment
+
+- [ ] Choose final hosting providers.
+- [ ] Configure frontend deployment.
+- [ ] Configure backend deployment.
+- [ ] Configure managed PostgreSQL database.
+- [ ] Add production environment variables.
+- [ ] Configure daily cron for status refresh.
+- [ ] Verify migrations run in deployment.
+- [ ] Smoke test the deployed MVP.
+
+## MVP acceptance checklist
+
+- [ ] User can create, read, update, and delete subscriptions.
+- [ ] User can import spreadsheet data with minimal cleanup.
+- [ ] User can export subscription data to CSV.
+- [ ] Dashboard shows active, upcoming, overdue, and expired counts correctly.
+- [ ] Status logic works for recurring subscriptions.
+- [ ] Status logic works for one-time subscriptions.
+- [ ] User can mark records done.
+- [ ] User can search, filter, and sort subscriptions.
+- [ ] App handles at least 100 subscriptions smoothly.
+- [ ] User can identify overdue and upcoming subscriptions from the dashboard quickly.
+
+## Future improvements
+
+- [ ] Add user authentication and personal data isolation.
+- [ ] Add shared household or team subscriptions.
+- [ ] Add email reminders.
+- [ ] Add push notifications.
+- [ ] Add calendar integration.
+- [ ] Add automatic next-renewal-date calculation from payment updates.
+- [ ] Add renewal and payment history log.
+- [ ] Add multi-currency support and exchange-rate sync.
+- [ ] Add categories and tags.
+- [ ] Add monthly and yearly spend charts.
+- [ ] Add duplicate subscription detection during import.
+- [ ] Add mobile-friendly PWA support.
