@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { navItems } from "@/data/dashboard";
+import { SidebarNav } from "@/components/layout/SidebarNav";
 
 export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
   return (
@@ -11,21 +11,7 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
             <p className="text-xl font-bold text-teal-800">SubTrack</p>
             <p className="mt-1 text-sm text-slate-500">Subscription tracker</p>
           </div>
-          <nav className="space-y-1">
-            {navItems.map((item) => (
-              <a
-                key={item}
-                href="#"
-                className={`block rounded-md px-3 py-2.5 text-sm font-medium ${
-                  item === "Dashboard"
-                    ? "bg-teal-50 text-teal-800"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
-                }`}
-              >
-                {item}
-              </a>
-            ))}
-          </nav>
+          <SidebarNav />
         </aside>
 
         <div className="min-w-0 flex-1">

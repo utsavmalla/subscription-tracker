@@ -1,10 +1,10 @@
 export const navItems = [
-  "Dashboard",
-  "Subscriptions",
-  "Add Subscription",
-  "Import / Export",
-  "Alerts",
-  "Settings",
+  { label: "Dashboard", href: "/" },
+  { label: "Subscriptions", href: "/subscriptions" },
+  { label: "Add Subscription", href: "/subscriptions/new" },
+  { label: "Import / Export", href: "/import" },
+  { label: "Alerts", href: "/alerts" },
+  { label: "Settings", href: "/settings" },
 ];
 
 export const metrics = [

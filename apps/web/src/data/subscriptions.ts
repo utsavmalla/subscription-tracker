@@ -1,0 +1,142 @@
+export type RenewalCycle = "Monthly" | "Quarterly" | "Yearly" | "One-time";
+export type SubscriptionStatus =
+  | "Active"
+  | "Upcoming"
+  | "Overdue"
+  | "Expired"
+  | "Completed";
+
+export type SubscriptionRow = {
+  id: string;
+  service: string;
+  amount: string;
+  cycle: RenewalCycle;
+  nextRenewal: string;
+  expiration: string;
+  status: SubscriptionStatus;
+  done: boolean;
+  updated: string;
+  remarks: string;
+};
+
+export type SubscriptionFormValues = SubscriptionRow;
+
+export const statusOptions = ["All", "Active", "Upcoming", "Overdue", "Expired"] as const;
+export const cycleOptions = ["All", "Monthly", "Quarterly", "Yearly", "One-time"] as const;
+export const doneOptions = ["All", "Done", "Not done"] as const;
+export const dateRangeOptions = ["Any time", "This week", "Next 30 days", "This quarter"] as const;
+
+const displayFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+
+export const subscriptionRows: SubscriptionRow[] = [
+  {
+    id: "1",
+    service: "Netflix",
+    amount: "$15.49",
+    cycle: "Monthly",
+    nextRenewal: "2026-05-04",
+    expiration: "2027-05-04",
+    status: "Upcoming",
+    done: false,
+    updated: "2026-04-28",
+    remarks: "Family streaming plan",
+  },
+  {
+    id: "2",
+    service: "Canva Pro",
+    amount: "$12.99",
+    cycle: "Monthly",
+    nextRenewal: "2026-04-28",
+    expiration: "2027-04-28",
+    status: "Overdue",
+    done: false,
+    updated: "2026-04-26",
+    remarks: "Team design workspace",
+  },
+  {
+    id: "3",
+    service: "Domain Renewal",
+    amount: "$18.00",
+    cycle: "Yearly",
+    nextRenewal: "2026-09-22",
+    expiration: "2027-09-22",
+    status: "Active",
+    done: true,
+    updated: "2026-04-25",
+    remarks: "Company domain registration",
+  },
+  {
+    id: "4",
+    service: "Adobe Creative Cloud",
+    amount: "$54.99",
+    cycle: "Monthly",
+    nextRenewal: "2026-05-06",
+    expiration: "2027-05-06",
+    status: "Upcoming",
+    done: false,
+    updated: "2026-04-30",
+    remarks: "Creative suite for content team",
+  },
+  {
+    id: "5",
+    service: "Spotify",
+    amount: "$10.99",
+    cycle: "Monthly",
+    nextRenewal: "2026-05-08",
+    expiration: "2027-05-08",
+    status: "Upcoming",
+    done: false,
+    updated: "2026-04-27",
+    remarks: "Music account",
+  },
+];
+
+export const initialSubscriptionValues: SubscriptionFormValues = {
+  id: "",
+  service: "",
+  amount: "",
+  cycle: "Monthly",
+  nextRenewal: new Date().toISOString().slice(0, 10),
+  expiration: new Date().toISOString().slice(0, 10),
+  status: "Active",
+  done: false,
+  updated: new Date().toISOString().slice(0, 10),
+  remarks: "",
+};
+
+export function getSubscriptionById(id: string) {
+  return subscriptionRows.find((row) => row.id === id) ?? null;
+}
+
+export function formatDate(value: string) {
+  return displayFormatter.format(new Date(value));
+}
+
+export function computeSubscriptionStatus(values: Pick<SubscriptionFormValues, "done" | "cycle" | "nextRenewal" | "expiration">): SubscriptionStatus {
+  if (values.done) {
+    return "Completed";
+  }
+
+  const now = new Date();
+  const renewalDate = new Date(values.nextRenewal);
+  const expirationDate = new Date(values.expiration);
+
+  if (values.cycle === "One-time" && expirationDate < now) {
+    return "Expired";
+  }
+
+  if (renewalDate < now) {
+    return "Overdue";
+  }
+
+  const deltaDays = Math.ceil((renewalDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  if (deltaDays <= 7) {
+    return "Upcoming";
+  }
+
+  return "Active";
+}

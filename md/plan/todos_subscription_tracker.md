@@ -27,44 +27,44 @@ This checklist is derived from:
 
 ## Milestone 3: Dashboard UI
 
-- [ ] Build desktop app shell with sidebar navigation.
-- [ ] Build mobile top header.
-- [ ] Create dashboard page.
-- [ ] Add summary metric cards for total, active, upcoming, overdue, and expired.
-- [ ] Add upcoming renewals panel.
-- [ ] Add overdue items panel.
-- [ ] Add monthly spend estimate widget.
-- [ ] Add recent updates widget.
-- [ ] Add compact subscriptions table preview.
-- [ ] Add responsive mobile card layout.
+- [x] Build desktop app shell with sidebar navigation.
+- [x] Build mobile top header.
+- [x] Create dashboard page.
+- [x] Add summary metric cards for total, active, upcoming, overdue, and expired.
+- [x] Add upcoming renewals panel.
+- [x] Add overdue items panel.
+- [x] Add monthly spend estimate widget.
+- [x] Add recent updates widget.
+- [x] Add compact subscriptions table preview.
+- [x] Add responsive mobile card layout.
 
 ## Milestone 4: Subscription management UI
 
-- [ ] Create subscriptions list page.
-- [ ] Add search bar.
-- [ ] Add status filter.
-- [ ] Add renewal cycle filter.
-- [ ] Add done-state filter.
-- [ ] Add date range filter.
-- [ ] Add sortable data table for desktop.
-- [ ] Add stacked subscription cards for mobile.
-- [ ] Add row actions: view, edit, mark done, and delete.
-- [ ] Add confirm delete modal.
+- [x] Create subscriptions list page.
+- [x] Add search bar.
+- [x] Add status filter.
+- [x] Add renewal cycle filter.
+- [x] Add done-state filter.
+- [x] Add date range filter.
+- [x] Add sortable data table for desktop.
+- [x] Add stacked subscription cards for mobile.
+- [x] Add row actions: view, edit, mark done, and delete.
+- [x] Add confirm delete modal.
 - [ ] Add toast messages for create, update, delete, import, and export.
 
 ## Milestone 5: Create, edit, and detail flows
 
-- [ ] Build shared create/edit subscription form.
-- [ ] Add basic details fields.
-- [ ] Add payment and date fields.
-- [ ] Add done checkbox.
-- [ ] Add computed status preview.
-- [ ] Add remarks textarea.
-- [ ] Emphasize expiration date for one-time subscriptions.
-- [ ] Emphasize next renewal date for recurring subscriptions.
-- [ ] Add `Save Subscription`, `Save and Add Another`, and `Cancel` actions.
-- [ ] Build subscription detail page or drawer.
-- [ ] Show full remarks and cancellation badges in detail view.
+- [x] Build shared create/edit subscription form.
+- [x] Add basic details fields.
+- [x] Add payment and date fields.
+- [x] Add done checkbox.
+- [x] Add computed status preview.
+- [x] Add remarks textarea.
+- [x] Emphasize expiration date for one-time subscriptions.
+- [x] Emphasize next renewal date for recurring subscriptions.
+- [x] Add `Save Subscription`, `Save and Add Another`, and `Cancel` actions.
+- [x] Build subscription detail page or drawer.
+- [x] Show full remarks and cancellation badges in detail view.
 
 ## Milestone 6: Alerts and reminders UI
 
