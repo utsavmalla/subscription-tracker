@@ -30,6 +30,7 @@ export default function SubscriptionsPage() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState("");
+  const [today] = useState(() => Date.now());
 
   const filteredRows = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -48,7 +49,6 @@ export default function SubscriptionsPage() {
           (doneState === "Done" ? row.done : !row.done);
 
         const renewalDate = parseDate(row.nextRenewal);
-        const today = Date.now();
         const daysUntilRenewal = Math.ceil((renewalDate - today) / (1000 * 60 * 60 * 24));
 
         const matchesDateRange =
@@ -96,7 +96,7 @@ export default function SubscriptionsPage() {
 
         return 0;
       });
-  }, [rows, search, status, cycle, doneState, dateRange, sortField, sortDirection]);
+  }, [rows, search, status, cycle, doneState, dateRange, sortField, sortDirection, today]);
 
   const activeCount = rows.filter((row) => row.status === "Active").length;
   const overdueCount = rows.filter((row) => row.status === "Overdue").length;

@@ -4,10 +4,11 @@ import { AppShell } from "@/components/layout";
 import { SubscriptionDetails } from "@/components/subscriptions/SubscriptionDetails";
 import { getSubscriptionById } from "@/data/subscriptions";
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
-export default function SubscriptionDetailPage({ params }: Props) {
-  const subscription = getSubscriptionById(params.id);
+export default async function SubscriptionDetailPage({ params }: Props) {
+  const { id } = await params;
+  const subscription = getSubscriptionById(id);
   if (!subscription) {
     notFound();
   }

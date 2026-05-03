@@ -3,10 +3,11 @@ import { SubscriptionForm } from "@/components/subscriptions/SubscriptionForm";
 import { getSubscriptionById } from "@/data/subscriptions";
 import { notFound } from "next/navigation";
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
-export default function EditSubscriptionPage({ params }: Props) {
-  const subscription = getSubscriptionById(params.id);
+export default async function EditSubscriptionPage({ params }: Props) {
+  const { id } = await params;
+  const subscription = getSubscriptionById(id);
   if (!subscription) {
     notFound();
   }
