@@ -1,6 +1,6 @@
 # Subscription Tracker Web
 
-Next.js frontend for the Subscription Tracker app.
+Next.js App Router app for the Subscription Tracker frontend and backend layer.
 
 ## Role
 
@@ -12,6 +12,8 @@ This app owns the browser experience:
 - CSV import and export screens
 - Alert and reminder views
 - Responsive desktop and mobile UI
+
+It will also own the MVP backend layer through Server Actions, Route Handlers, and server-only Prisma services.
 
 ## Tech Stack
 
@@ -44,10 +46,11 @@ cp apps/web/.env.example apps/web/.env
 ## Environment Variables
 
 ```text
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_SUPABASE_URL=https://PROJECT_REF.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=SUPABASE_ANON_KEY
 ```
 
-This value tells the frontend where to call the NestJS API.
+Server-only Supabase and database credentials belong in the root/local deployment environment, not in public browser variables.
 
 ## Commands
 
@@ -81,12 +84,6 @@ Open:
 http://localhost:3000
 ```
 
-When API-backed screens are implemented, start the backend separately with:
-
-```bash
-npm run dev:api
-```
-
 ## Important Files
 
 - `src/app/page.tsx`: Home page route
@@ -98,4 +95,3 @@ npm run dev:api
 ## Implementation Notes
 
 The UI should follow the product and layout docs in the root `md/` folder. The MVP should prioritize dashboard visibility, subscription management, search/filter/sort, and CSV workflows before decorative polish.
-

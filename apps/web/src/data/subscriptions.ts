@@ -2,7 +2,7 @@ import {
   calculateSubscriptionStatus,
   type RenewalCycle as SharedRenewalCycle,
   type SubscriptionStatus,
-} from "@subscription-tracker/shared";
+} from "@/lib/subscriptions/status";
 
 export type RenewalCycle = "Monthly" | "Quarterly" | "Yearly" | "One-time";
 

@@ -4,22 +4,17 @@
   "private": true,
   "description": "Subscription tracker web app monorepo.",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/*"
   ],
   "scripts": {
     "dev:web": "npm --prefix apps/web run dev",
-    "dev:api": "npm --prefix apps/api run start:dev",
-    "build": "npm run build:web && npm run build:api",
+    "build": "npm run build:web",
     "build:web": "npm --prefix apps/web run build",
-    "build:api": "npm --prefix apps/api run build",
-    "lint": "npm run lint:web && npm run lint:api",
+    "lint": "npm run lint:web",
     "lint:web": "npm --prefix apps/web run lint",
-    "lint:api": "npm --prefix apps/api run lint",
-    "test": "npm --prefix apps/api run test"
+    "test": "npm --prefix apps/web run lint"
   },
   "engines": {
     "node": ">=20"
   }
 }
-

@@ -7,10 +7,7 @@ The project is organized as a small TypeScript monorepo:
 ```text
 subscription-tracker/
   apps/
-    web/      Next.js frontend
-    api/      NestJS backend API
-  packages/
-    shared/   Shared TypeScript types and utilities
+    web/      Next.js App Router frontend and backend layer
   md/         Product specs, UI notes, and TODO checklist
   design/     Static design drafts and wireframes
 ```
@@ -21,9 +18,8 @@ Milestone 1 is complete:
 
 - Git repository initialized
 - Next.js frontend scaffolded in `apps/web`
-- NestJS backend scaffolded in `apps/api`
 - Prisma initialized for PostgreSQL
-- Shared package placeholder added
+- App-local domain helper modules added under `apps/web`
 - Root workspace scripts added
 - Environment examples added
 
@@ -52,7 +48,6 @@ Create local environment files from the examples:
 ```bash
 copy .env.example .env
 copy apps\web\.env.example apps\web\.env
-copy apps\api\.env.example apps\api\.env
 ```
 
 On macOS or Linux, use `cp` instead of `copy`.
@@ -65,25 +60,19 @@ Run the frontend:
 npm run dev:web
 ```
 
-Run the API:
-
-```bash
-npm run dev:api
-```
-
-Build both apps:
+Build the app:
 
 ```bash
 npm run build
 ```
 
-Lint both apps:
+Lint the app:
 
 ```bash
 npm run lint
 ```
 
-Run backend tests:
+Run checks:
 
 ```bash
 npm run test
@@ -92,30 +81,29 @@ npm run test
 ## Local URLs
 
 - Web app: `http://localhost:3000`
-- API: `http://localhost:3001`
-
-The API port is configured with `PORT=3001` in the env examples.
 
 ## Environment Variables
 
 Root `.env.example`:
 
 ```text
-NEXT_PUBLIC_API_URL=http://localhost:3001
-PORT=3001
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/subscription_tracker?schema=public
+NEXT_PUBLIC_SUPABASE_URL=https://PROJECT_REF.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY=SUPABASE_SERVICE_ROLE_KEY
+DATABASE_URL=postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres?pgbouncer=true
+DIRECT_URL=postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-REGION.pooler.supabase.com:5432/postgres
 ```
 
-The same values are split into app-specific examples under `apps/web` and `apps/api`.
+The same public values are mirrored in `apps/web/.env.example`.
 
 ## Project Docs
 
-- `md/project_structure.md`: Repository layout and file placement guide
-- `md/spec_subscription_tracker_mvp.md`: Product and architecture specification
+- `md/agent/project_structure.md`: Repository layout and file placement guide
+- `md/specs/spec_subscription_tracker_mvp.md`: Product and architecture specification
 - `md/ui_layout_subscription_tracker.md`: UI layout plan
 - `md/figma_draft_subscription_tracker.md`: Figma draft plan
-- `md/todos_subscription_tracker.md`: Implementation checklist
+- `md/plan/todos_subscription_tracker.md`: Implementation checklist
 
 ## Notes
 
-The app is not feature-complete yet. Current work is frontend-first: the dashboard shell and static subscription overview are in place while backend schema and API milestones are still upcoming.
+The app is not feature-complete yet. Current work is frontend-first: the dashboard shell and static subscription overview are in place while the Next.js backend layer, Supabase setup, and Prisma-backed data milestones are still upcoming.

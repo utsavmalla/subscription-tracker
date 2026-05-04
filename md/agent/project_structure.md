@@ -1,6 +1,6 @@
 # Project Structure
 
-Subscription Tracker is organized as a small TypeScript npm workspace with separate app folders and a shared package for cross-app contracts.
+Subscription Tracker is organized as a small TypeScript npm workspace. The active app lives under `apps/web`; app-local domain contracts live in the web source tree until another package boundary is needed.
 
 ## Directory Tree
 
@@ -14,31 +14,17 @@ subscription-tracker/
       AGENTS.md
       src/
         app/
+          api/
         components/
           dashboard/
           layout/
           ui/
+        actions/
         data/
         hooks/
         lib/
+        server/
         types/
-    api/
-      AGENTS.md
-      src/
-        modules/
-          subscriptions/
-          dashboard/
-          imports/
-          reminders/
-        common/
-          dto/
-          filters/
-          pipes/
-          utils/
-        prisma/
-  packages/
-    shared/
-      src/
   md/
   design/
 ```
@@ -49,13 +35,13 @@ subscription-tracker/
 - New app shell or page layout wrapper: `apps/web/src/components/layout/<Name>.tsx`
 - Reusable UI primitive used across screens: `apps/web/src/components/ui/<Name>.tsx`
 - Frontend route entry: `apps/web/src/app/<route>/page.tsx`
+- Next.js Route Handler: `apps/web/src/app/api/<route>/route.ts`
+- Next.js Server Action: `apps/web/src/actions/<feature>.ts`
+- Server-only Prisma query/service: `apps/web/src/server/<feature>.ts`
 - Frontend mock/static data: `apps/web/src/data/<feature>.ts`
 - Frontend-only helper: `apps/web/src/lib/<name>.ts`
 - Frontend-only type: `apps/web/src/types/<name>.ts`
-- Backend feature module code: `apps/api/src/modules/<feature>/`
-- Backend-only DTO: `apps/api/src/common/dto/`
-- Prisma service or database integration: `apps/api/src/prisma/`
-- Shared API response shape or domain type: `packages/shared/src/`
+- App-local API response shape or domain type: `apps/web/src/lib/<feature>/`
 - Product, planning, and implementation notes: `md/`
 - Static design drafts and wireframes: `design/`
 
@@ -75,23 +61,23 @@ The frontend uses type-based top-level folders under `apps/web/src`.
 
 ## Backend Conventions
 
-The backend is a NestJS app. Starter files can remain until feature modules are introduced.
+The target MVP backend layer lives inside the Next.js app. Use App Router Route Handlers for HTTP-style endpoints, Server Actions for trusted form mutations, and server-only services/queries for Prisma access to Supabase Postgres.
 
-- New feature code should live under `apps/api/src/modules/<feature>`.
-- Shared backend utilities should live under `apps/api/src/common`.
-- Prisma integration should live under `apps/api/src/prisma`.
-- Do not place new feature controllers or services directly under `apps/api/src`.
-- Promote DTOs and types needed by the frontend to `packages/shared`.
+- New backend feature code should live under `apps/web/src/actions`, `apps/web/src/app/api`, or `apps/web/src/server`, depending on the boundary.
+- Keep Prisma access server-only and pointed at Supabase Postgres.
+- Use Supabase Auth for user identity and data isolation.
+- Use Supabase scheduled Edge Functions for daily status refresh and reminder generation.
+- Keep DTOs and types needed by the frontend in `apps/web/src/lib` until a real cross-package boundary is needed.
 
-## Shared Package Conventions
+## Domain Contract Conventions
 
-Use `packages/shared` for code that defines the contract between apps:
+Use `apps/web/src/lib` for code that defines app-local contracts and domain helpers:
 
 - Domain types and enums
 - API request and response shapes
-- Shared validation or formatting helpers that are not tied to React or NestJS
+- Shared validation or formatting helpers that are not tied to React or framework-specific server code
 
-Do not put frontend components, React hooks, NestJS services, or database-specific implementation details in `packages/shared`.
+Do not put frontend components, React hooks, Next.js Server Actions, framework-specific server services, or database-specific implementation details in domain helper modules.
 
 ## Docs And Design Assets
 

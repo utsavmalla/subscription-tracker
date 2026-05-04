@@ -1,19 +1,19 @@
-export const renewalCycles = ['Monthly', 'Quarterly', 'Yearly', 'OneTime'] as const;
+export const renewalCycles = ["Monthly", "Quarterly", "Yearly", "OneTime"] as const;
 
 export type RenewalCycle = (typeof renewalCycles)[number];
 
 export const subscriptionStatuses = [
-  'Active',
-  'Upcoming',
-  'DueToday',
-  'Overdue',
-  'Expired',
-  'Completed',
+  "Active",
+  "Upcoming",
+  "DueToday",
+  "Overdue",
+  "Expired",
+  "Completed",
 ] as const;
 
 export type SubscriptionStatus = (typeof subscriptionStatuses)[number];
 
-export const alertStates = ['None', 'Upcoming', 'DueToday', 'Overdue', 'Expired'] as const;
+export const alertStates = ["None", "Upcoming", "DueToday", "Overdue", "Expired"] as const;
 
 export type AlertState = (typeof alertStates)[number];
 
@@ -39,10 +39,10 @@ export function calculateSubscriptionStatus(
   const today = startOfUtcDay(input.today ?? new Date());
 
   if (input.done) {
-    return { status: 'Completed', alertState: 'None' };
+    return { status: "Completed", alertState: "None" };
   }
 
-  if (input.renewalCycle === 'OneTime') {
+  if (input.renewalCycle === "OneTime") {
     return calculateOneTimeStatus(input.expirationDate, today);
   }
 
@@ -50,7 +50,7 @@ export function calculateSubscriptionStatus(
 }
 
 export function hasAutoRenewalCancelRemark(remarks?: string | null): boolean {
-  return /\bauto\s+renewal\s+cancel(?:led|ed)?\b/i.test(remarks ?? '');
+  return /\bauto\s+renewal\s+cancel(?:led|ed)?\b/i.test(remarks ?? "");
 }
 
 function calculateOneTimeStatus(
@@ -60,20 +60,20 @@ function calculateOneTimeStatus(
   const expirationDay = parseOptionalDay(expirationDate);
 
   if (!expirationDay) {
-    return { status: 'Active', alertState: 'None' };
+    return { status: "Active", alertState: "None" };
   }
 
   const dayDifference = diffInDays(expirationDay, today);
 
   if (dayDifference < 0) {
-    return { status: 'Expired', alertState: 'Expired' };
+    return { status: "Expired", alertState: "Expired" };
   }
 
   if (dayDifference === 0) {
-    return { status: 'DueToday', alertState: 'DueToday' };
+    return { status: "DueToday", alertState: "DueToday" };
   }
 
-  return { status: 'Active', alertState: 'None' };
+  return { status: "Active", alertState: "None" };
 }
 
 function calculateRecurringStatus(
@@ -83,24 +83,24 @@ function calculateRecurringStatus(
   const renewalDay = parseOptionalDay(nextRenewalDate);
 
   if (!renewalDay) {
-    return { status: 'Active', alertState: 'None' };
+    return { status: "Active", alertState: "None" };
   }
 
   const dayDifference = diffInDays(renewalDay, today);
 
   if (dayDifference < 0) {
-    return { status: 'Overdue', alertState: 'Overdue' };
+    return { status: "Overdue", alertState: "Overdue" };
   }
 
   if (dayDifference === 0) {
-    return { status: 'DueToday', alertState: 'DueToday' };
+    return { status: "DueToday", alertState: "DueToday" };
   }
 
   if (dayDifference <= upcomingWindowDays) {
-    return { status: 'Upcoming', alertState: 'Upcoming' };
+    return { status: "Upcoming", alertState: "Upcoming" };
   }
 
-  return { status: 'Active', alertState: 'None' };
+  return { status: "Active", alertState: "None" };
 }
 
 function parseOptionalDay(value: Date | string | null | undefined): Date | null {
@@ -112,7 +112,7 @@ function parseOptionalDay(value: Date | string | null | undefined): Date | null 
 }
 
 function startOfUtcDay(value: Date | string): Date {
-  const date = typeof value === 'string' ? parseDateString(value) : value;
+  const date = typeof value === "string" ? parseDateString(value) : value;
 
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }

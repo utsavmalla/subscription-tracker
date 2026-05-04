@@ -1,22 +1,31 @@
 # Subscription Tracker TODOs
 
 This checklist is derived from:
-- `md/spec_subscription_tracker_mvp.md`
+- `md/specs/spec_subscription_tracker_mvp.md`
 - `md/ui_layout_subscription_tracker.md`
 - `md/figma_draft_subscription_tracker.md`
 - Existing Figma design: https://www.figma.com/design/m5qI2GvjNYMeE1PSxEIMWp
+
+## Stack transition note
+
+- Target MVP stack: Next.js App Router + TypeScript, Next.js Server Actions/Route Handlers, Supabase Postgres/Auth, Prisma, Supabase scheduled Edge Functions, and later Resend/Slack alerts.
+- The previous separate API app has been removed. Active implementation should happen under `apps/web` using Next.js backend capabilities.
+- Existing Neon-related work is legacy previous setup and should not drive new MVP milestones.
 
 ## Milestone 1: Project foundation
 
 - [x] Decide final repo structure for frontend, backend, shared types, and database files.
 - [x] Scaffold the Next.js frontend app.
 - [x] Add Tailwind CSS and base app shell styling.
-- [x] Scaffold the NestJS backend API.
-- [x] Configure PostgreSQL connection settings.
 - [x] Add Prisma ORM.
 - [x] Create environment variable examples for local development.
-- [x] Configure Neon Postgres connection settings.
+- [x] Configure legacy Neon Postgres connection settings. Not the target database for new MVP work.
+- [x] Remove previous separate API app from the workspace.
 - [x] Add basic lint, format, and build scripts.
+- [ ] Create Supabase project.
+- [ ] Configure Supabase Postgres connection settings for Prisma.
+- [ ] Configure Supabase Auth project settings.
+- [ ] Add Supabase environment variable templates for local development.
 
 ## Milestone 2: Design handoff and frontend reference
 
@@ -92,31 +101,35 @@ This checklist is derived from:
 - [x] Define subscription enums for renewal cycle, status, and alert state.
 - [x] Add optional `ReminderEvent` Prisma model.
 - [x] Create initial Prisma migration.
-- [x] Apply initial Prisma migration to Neon.
+- [x] Apply initial Prisma migration to legacy Neon database. Not the target deployment database.
+- [ ] Apply Prisma migration to Supabase Postgres.
+- [ ] Add Supabase Auth user ownership fields and access constraints to the data model.
 - [x] Implement status calculation for recurring subscriptions.
 - [x] Implement status calculation for one-time subscriptions.
 - [x] Recalculate status on create and update.
 - [x] Add tests for status logic edge cases.
 - [x] Ensure `Auto Renewal Cancel` remarks remain visible without changing computed status.
 
-## Milestone 9: Backend API
+## Milestone 9: Next.js Backend Layer
 
-- [ ] Create `subscriptions` module.
-- [ ] Create `dashboard` module.
-- [ ] Create `imports` module.
-- [ ] Create `reminders` module.
-- [ ] Implement `GET /subscriptions`.
-- [ ] Implement `GET /subscriptions/:id`.
-- [ ] Implement `POST /subscriptions`.
-- [ ] Implement `PUT /subscriptions/:id`.
-- [ ] Implement `DELETE /subscriptions/:id`.
+- [ ] Create `apps/web` backend folder structure for actions, route handlers, queries, and services.
+- [ ] Create subscription Server Actions for create, update, delete, and mark done.
+- [ ] Create subscription Route Handlers for HTTP-style list/detail access where needed.
+- [ ] Create dashboard summary query handler.
+- [ ] Create CSV import/export Route Handlers.
+- [ ] Create reminder/status refresh function boundary for scheduled execution.
+- [ ] Implement list subscriptions handler/query.
+- [ ] Implement get subscription by id handler/query.
+- [ ] Implement create subscription action.
+- [ ] Implement update subscription action.
+- [ ] Implement delete subscription action.
 - [ ] Implement mark-done quick action.
-- [ ] Implement `GET /dashboard/summary`.
+- [ ] Implement dashboard summary query.
 - [ ] Add validation for required fields, dates, and non-negative amounts.
 - [ ] Add sorting by renewal date, expiration date, amount, and updated date.
 - [ ] Add filters for status, renewal cycle, done state, date range, and service search.
-- [ ] Replace frontend mock subscription data with API-backed data.
-- [ ] Verify real subscription records load from Neon through the backend API.
+- [ ] Replace frontend mock subscription data with Next.js handlers/actions backed by Prisma.
+- [ ] Verify real subscription records load from Supabase Postgres through Prisma.
 
 ## Milestone 10: CSV import and export
 
@@ -129,21 +142,25 @@ This checklist is derived from:
 - [ ] Export all subscriptions to CSV.
 - [ ] Export filtered subscriptions to CSV.
 
-## Milestone 11: Backend reminders and jobs
+## Milestone 11: Reminders and scheduled jobs
 
-- [ ] Add daily status refresh job.
+- [ ] Add Supabase scheduled Edge Function for daily status refresh.
+- [ ] Connect scheduled function to the protected Next.js reminder/status refresh boundary or shared refresh service.
 - [ ] Make reminder generation idempotent.
+- [ ] Keep MVP notifications in-app only.
+- [ ] Add later Resend email reminder integration.
+- [ ] Add later Slack webhook reminder integration.
 
 ## Milestone 12: Deployment
 
-- [ ] Choose final hosting providers.
-- [ ] Configure frontend deployment.
-- [ ] Configure backend deployment.
-- [x] Configure managed PostgreSQL database.
-- [x] Add Neon database environment variable templates.
-- [ ] Add production environment variables to hosting providers.
-- [ ] Configure daily cron for status refresh.
-- [ ] Verify migrations run in deployment.
+- [x] Select target hosting stack: Next.js app on Vercel or similar, Supabase for Postgres/Auth/scheduled functions.
+- [ ] Configure Next.js app deployment.
+- [ ] Configure Supabase project for production.
+- [x] Configure legacy managed PostgreSQL database. Not the target database for new MVP work.
+- [x] Add legacy Neon database environment variable templates. Not the target environment for new MVP work.
+- [ ] Add Supabase database and auth environment variables to hosting providers.
+- [ ] Configure Supabase scheduled Edge Function deployment.
+- [ ] Verify Prisma migrations run against Supabase Postgres.
 - [ ] Smoke test the deployed MVP.
 
 ## MVP acceptance checklist

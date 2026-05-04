@@ -19,7 +19,7 @@ apps/web/src/
     ui/
   data/                Temporary mock/static frontend data
   hooks/               React hooks
-  lib/                 Frontend helpers, formatting, API client utilities
+  lib/                 Frontend and server-safe helpers, formatting, domain utilities
   types/               Frontend-only types
 ```
 
@@ -31,7 +31,7 @@ apps/web/src/
 - Put app shells, nav shells, and page layout wrappers in `components/layout`.
 - Put reusable primitives such as badges, panels, buttons, and inputs in `components/ui`.
 - Put temporary mock/static data in `src/data`, not inside component folders.
-- Put frontend-only types in `src/types`. Put shared contracts needed by the API in `packages/shared`.
+- Put frontend-only types in `src/types`. Put app-local domain helpers and contracts in `src/lib` until another package boundary exists.
 
 ## Checks
 

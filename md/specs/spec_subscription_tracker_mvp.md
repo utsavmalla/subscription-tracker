@@ -50,12 +50,16 @@ Many people track subscriptions in spreadsheets, but spreadsheets are weak at pr
 ### App overview
 
 A small web app with:
-- React frontend for dashboard, forms, and tables.
-- Basic backend API for subscription data and reminder processing.
-- Relational database for storing subscriptions and optional reminder events.
-- Scheduled job that recalculates statuses and generates reminders.
+- Next.js App Router frontend for dashboard, forms, and tables.
+- Next.js backend layer using Server Actions and Route Handlers for subscription data and reminder processing.
+- Supabase Postgres for storing subscriptions and optional reminder events.
+- Supabase scheduled Edge Function that recalculates statuses and generates reminders.
 
-This should be easy to build with a standard React + REST API stack.
+This should be easy to build as a small full-stack Next.js app backed by Supabase and Prisma.
+
+### Stack transition note
+
+The previous separate API app has been removed from the target repo structure. Future implementation should happen under `apps/web` using Next.js App Router backend capabilities, Prisma, and Supabase.
 
 ### Target users
 
@@ -88,29 +92,29 @@ This should be easy to build with a standard React + REST API stack.
 ```plantuml
 @startuml
 actor User
-participant "React Web App" as FE
-participant "Backend API" as API
-database "PostgreSQL" as DB
-participant "Scheduler / Cron" as CRON
-participant "Email Notifier (optional)" as EMAIL
+participant "Next.js Web App" as FE
+participant "Next.js Server Actions / Route Handlers" as API
+database "Supabase Postgres" as DB
+participant "Supabase Scheduled Edge Function" as CRON
+participant "Resend / Slack Notifier (later)" as NOTIFY
 
 User -> FE: View dashboard / manage subscriptions
-FE -> API: REST requests
+FE -> API: Form actions / HTTP requests
 API -> DB: Read/write subscriptions
-CRON -> API: Trigger status refresh
-API -> DB: Recalculate statuses / reminders
-API -> EMAIL: Send reminder (optional)
+CRON -> API: Trigger status refresh boundary
+API -> DB: Recalculate statuses / reminders with Prisma
+API -> NOTIFY: Send reminder (later)
 @enduml
 ```
 
 ### Recommended MVP architecture
 
-- Frontend: React web app (prefer Next.js App Router for a simple full-stack-friendly frontend shell)
-- Backend: NestJS API
-- Database: PostgreSQL
+- Frontend and backend shell: Next.js App Router with TypeScript
+- Backend layer: Next.js Server Actions for form mutations and Route Handlers for HTTP-style endpoints
+- Database: Supabase Postgres
 - ORM: Prisma ORM
-- Scheduler: Daily cron job
-- Auth: Optional in MVP; can start as single-user app
+- Scheduler: Supabase scheduled Edge Functions for daily status refresh and reminder generation
+- Auth: Supabase Auth for MVP user accounts and data isolation
 
 ### Preferred tech stack
 
@@ -120,20 +124,21 @@ The stack should prioritize open-source tools or platforms with a meaningful fre
 - **Next.js (React)** for the web app UI.
   - Good fit for dashboard pages, forms, search/filter UI, and deployment simplicity.
   - Easy hosting on Vercel Hobby.
+- **Next.js App Router backend capabilities** for co-locating UI, form mutations, and HTTP-style endpoints in one deployable app.
 - **UI**: Tailwind CSS for fast MVP styling.
 - **Tables/forms**: TanStack Table for data table features and React Hook Form + Zod for form handling and validation.
 
 #### Backend
-- **NestJS** for the API.
-  - Better structure than Express for modules like `subscriptions`, `dashboard`, `imports`, and `reminders`.
-  - Good fit for validation, scheduled jobs, and clear contractor handoff.
-- **Validation**: `class-validator` and `class-transformer` or Zod at API boundaries.
-- **Scheduler**: NestJS scheduler module or platform cron calling a protected API route.
+- **Next.js Server Actions** for trusted form mutations such as create, update, delete, and mark done.
+- **Next.js Route Handlers** for HTTP-style boundaries such as CSV import/export, dashboard summary reads, and scheduled refresh triggers.
+- **Validation**: Zod at action and route-handler boundaries.
+- **Stack note**: the previous separate API app has been removed; new backend milestone work belongs in `apps/web`.
 
 #### Database
-- **PostgreSQL** as the primary database.
+- **Supabase Postgres** as the primary database.
+- **Supabase Auth** for authentication and personal data isolation.
 - **Prisma ORM** for schema, migrations, and type-safe database access.
-  - Prisma ORM is open-source and works well with NestJS and PostgreSQL.
+  - Prisma ORM is open-source and works well with Next.js and Supabase Postgres.
 
 #### File import/export
 - **CSV import/export** first for spreadsheet compatibility.
@@ -141,41 +146,43 @@ The stack should prioritize open-source tools or platforms with a meaningful fre
 
 #### Notifications
 - **MVP**: in-app alerts only.
-- **Later**: email reminders using a provider with a free tier.
+- **Later**: email reminders with Resend and Slack webhook alerts.
 
 ### Open-source / free-tier-first tool choices
 
 Preferred defaults:
 - Next.js: open-source
-- NestJS: open-source
 - Prisma ORM: open-source
-- PostgreSQL: open-source
+- Supabase Postgres: hosted Postgres with a practical free tier
+- Supabase Auth: managed auth with a practical free tier
+- Supabase Edge Functions: scheduled reminder/status work
 - Tailwind CSS: open-source
 - TanStack Table: open-source
 - React Hook Form: open-source
 - Zod: open-source
+- Resend and Slack webhooks: later notification integrations
 
 For hosted services, prefer free-tier platforms first and keep the app portable so it can move later.
 
 ### Hosting recommendations
 
 #### Best low-cost MVP hosting setup
-- **Frontend**: Vercel Hobby
-- **Backend API**: Render, Railway, or a small VPS depending on desired simplicity
-- **Database**: Neon Postgres free tier
+- **Next.js app**: Vercel Hobby or a similar Next.js-friendly host
+- **Database and auth**: Supabase Postgres and Supabase Auth
+- **Scheduled work**: Supabase scheduled Edge Functions
 
 #### Recommended default deployment
-1. **Frontend on Vercel Hobby**
+1. **Next.js app on Vercel Hobby or similar**
    - Good fit for Next.js deployment and preview deployments.
    - Free tier is strong for personal projects and MVPs.
-2. **Backend on Render or Railway**
-   - Easier for a long-running NestJS API than trying to force the whole backend into frontend hosting patterns.
-   - Choose the provider with the best free allowance available at the time of deployment.
-3. **Database on Neon**
-   - Managed Postgres with a free plan and works well with Prisma.
+2. **Supabase for Postgres and Auth**
+   - Keeps database, authentication, and operational setup simple for the MVP.
+   - Works with Prisma when `DATABASE_URL` and direct migration connection settings are configured correctly.
+3. **Supabase scheduled Edge Functions**
+   - Run daily status refresh and reminder generation close to the Supabase project.
 
 #### Alternative single-platform leaning
-- If the app is kept very small, some scheduled tasks can be triggered with Vercel Cron calling backend endpoints.
+- If the app is kept very small, some scheduled tasks can be triggered with Vercel Cron calling protected Next.js Route Handlers.
 - Vercel cron jobs are available on all plans, but Hobby has a minimum interval of once per day with hourly precision, which is enough for this subscription tracker MVP.
 
 #### Hosting notes for this app
@@ -184,6 +191,7 @@ For hosted services, prefer free-tier platforms first and keep the app portable 
 - Keep file import processing small and asynchronous if the data set grows.
 - Store secrets in hosting platform environment variables.
 - Use separate environments for local, staging, and production if possible.
+- Store Supabase service-role credentials only in trusted server-side environments.
 
 ### Main entities
 
@@ -240,7 +248,7 @@ Tracks reminders generated/sent.
 
 ### Status logic
 
-Status should be derived by the backend daily and also recalculated on create/update.
+Status should be derived by the Next.js backend layer daily and also recalculated on create/update.
 
 #### Proposed status values
 - Active
@@ -352,7 +360,7 @@ The dashboard should answer: what needs attention, what is upcoming, and what am
    - one-time subscription expires today or has expired.
 3. Backend updates `status` and `alert_state`.
 4. App dashboard highlights these records.
-5. Optional: backend sends email notifications for qualifying alerts.
+5. Later: backend sends Resend email or Slack webhook notifications for qualifying alerts.
 6. User marks alert/task as done.
 7. For recurring subscriptions, after user records a payment, the user updates `date_paid` and `next_renewal_date`.
 
@@ -392,33 +400,36 @@ stop
 ### Suggested MVP build steps
 
 1. Create the frontend app with Next.js and Tailwind CSS.
-2. Create the backend API with NestJS modules:
-   - `subscriptions`
-   - `dashboard`
-   - `imports`
-   - `reminders`
-3. Define Prisma schema for subscriptions and optional reminder events.
-4. Connect Prisma to PostgreSQL and apply initial migrations.
-5. Build REST API endpoints:
-   - `GET /subscriptions`
-   - `GET /subscriptions/:id`
-   - `POST /subscriptions`
-   - `PUT /subscriptions/:id`
-   - `DELETE /subscriptions/:id`
-   - `POST /subscriptions/import`
-   - `GET /subscriptions/export`
-   - `GET /dashboard/summary`
-6. Implement status calculation service.
-7. Add scheduled daily job for status refresh.
-8. Build frontend pages:
+2. Create the Next.js backend layer under `apps/web`:
+   - subscription Server Actions for create, update, delete, and mark done
+   - Route Handlers for list/detail reads where HTTP access is useful
+   - dashboard summary query handler
+   - CSV import/export handlers
+   - protected reminder/status refresh boundary
+3. Create a Supabase project and configure Supabase Auth.
+4. Define Prisma schema for subscriptions, user ownership, and optional reminder events.
+5. Connect Prisma to Supabase Postgres and apply initial migrations.
+6. Build backend boundaries:
+   - list subscriptions
+   - get subscription by id
+   - create subscription
+   - update subscription
+   - delete subscription
+   - mark done
+   - import subscriptions
+   - export subscriptions
+   - dashboard summary
+7. Implement status calculation service shared by actions, handlers, and scheduled refresh.
+8. Add Supabase scheduled Edge Function for daily status refresh and reminder generation.
+9. Build frontend pages:
    - Dashboard
    - Subscription list
    - Create/edit form
    - Import/export page
-9. Add table filters and search.
-10. Add quick actions for mark done and edit.
-11. Deploy frontend, backend, and database on free-tier-friendly hosting.
-12. Add optional email reminder support later.
+10. Add table filters and search.
+11. Add quick actions for mark done and edit.
+12. Deploy the Next.js app and Supabase project on free-tier-friendly hosting.
+13. Add optional Resend email and Slack webhook reminder support later.
 
 ### API payload example
 
@@ -449,7 +460,7 @@ stop
 
 ### Milestone 1: Data foundation
 - Database schema created
-- CRUD API working
+- Next.js backend actions/handlers working
 - Status calculation service working
 
 ### Milestone 2: Frontend MVP
@@ -463,9 +474,9 @@ stop
 - Basic validation and error handling
 
 ### Milestone 4: Alerts
-- Daily scheduled status refresh
+- Supabase scheduled status refresh
 - In-app alert highlighting
-- Optional email reminders
+- Optional Resend email or Slack webhook reminders
 
 ## Gathering Results
 
@@ -487,9 +498,9 @@ Success can be measured by:
 
 The MVP should include:
 - Single-user web app
-- Next.js frontend
-- NestJS backend API
-- PostgreSQL database
+- Next.js App Router frontend and backend layer
+- Supabase Postgres database
+- Supabase Auth
 - Prisma ORM and migrations
 - Subscription CRUD
 - Dashboard with status summaries
@@ -515,4 +526,3 @@ The MVP should include:
 ## Need Professional Help in Developing Your Architecture?
 
 Please contact me at [sammuti.com](https://sammuti.com) :)
-
