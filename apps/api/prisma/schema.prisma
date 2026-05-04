@@ -11,3 +11,80 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum RenewalCycle {
+  Monthly
+  Quarterly
+  Yearly
+  OneTime
+}
+
+enum SubscriptionStatus {
+  Active
+  Upcoming
+  DueToday
+  Overdue
+  Expired
+  Completed
+}
+
+enum AlertState {
+  None
+  Upcoming
+  DueToday
+  Overdue
+  Expired
+}
+
+enum ReminderType {
+  Upcoming
+  DueToday
+  Overdue
+}
+
+enum ReminderEventStatus {
+  Pending
+  Sent
+  Failed
+  Dismissed
+}
+
+model Subscription {
+  id              String             @id @default(uuid()) @db.Uuid
+  serviceName     String             @map("service_name")
+  usdAmount       Decimal?           @map("usd_amount") @db.Decimal(10, 2)
+  localAmount     Decimal?           @map("local_amount") @db.Decimal(12, 2)
+  currencyCode    String?            @default("NPR") @map("currency_code")
+  datePaid        DateTime?          @map("date_paid") @db.Date
+  renewalCycle    RenewalCycle       @map("renewal_cycle")
+  nextRenewalDate DateTime?          @map("next_renewal_date") @db.Date
+  expirationDate  DateTime?          @map("expiration_date") @db.Date
+  status          SubscriptionStatus @default(Active)
+  alertState      AlertState         @default(None) @map("alert_state")
+  done            Boolean            @default(false)
+  remarks         String?
+  reminderEvents  ReminderEvent[]
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([renewalCycle])
+  @@index([nextRenewalDate])
+  @@index([expirationDate])
+  @@map("subscriptions")
+}
+
+model ReminderEvent {
+  id             String              @id @default(uuid()) @db.Uuid
+  subscriptionId String              @map("subscription_id") @db.Uuid
+  subscription   Subscription        @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  reminderType   ReminderType        @map("reminder_type")
+  scheduledFor   DateTime            @map("scheduled_for")
+  sentAt         DateTime?           @map("sent_at")
+  status         ReminderEventStatus @default(Pending)
+  createdAt      DateTime            @default(now()) @map("created_at")
+
+  @@index([subscriptionId])
+  @@index([scheduledFor])
+  @@map("reminder_events")
+}

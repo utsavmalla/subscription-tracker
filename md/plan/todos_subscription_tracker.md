@@ -15,6 +15,7 @@ This checklist is derived from:
 - [x] Configure PostgreSQL connection settings.
 - [x] Add Prisma ORM.
 - [x] Create environment variable examples for local development.
+- [x] Configure Neon Postgres connection settings.
 - [x] Add basic lint, format, and build scripts.
 
 ## Milestone 2: Design handoff and frontend reference
@@ -87,15 +88,16 @@ This checklist is derived from:
 
 ## Milestone 8: Data model and status logic
 
-- [ ] Define `Subscription` Prisma model.
-- [ ] Define subscription enums for renewal cycle, status, and alert state.
-- [ ] Add optional `ReminderEvent` Prisma model.
-- [ ] Create initial Prisma migration.
-- [ ] Implement status calculation for recurring subscriptions.
-- [ ] Implement status calculation for one-time subscriptions.
-- [ ] Recalculate status on create and update.
-- [ ] Add tests for status logic edge cases.
-- [ ] Ensure `Auto Renewal Cancel` remarks remain visible without changing computed status.
+- [x] Define `Subscription` Prisma model.
+- [x] Define subscription enums for renewal cycle, status, and alert state.
+- [x] Add optional `ReminderEvent` Prisma model.
+- [x] Create initial Prisma migration.
+- [x] Apply initial Prisma migration to Neon.
+- [x] Implement status calculation for recurring subscriptions.
+- [x] Implement status calculation for one-time subscriptions.
+- [x] Recalculate status on create and update.
+- [x] Add tests for status logic edge cases.
+- [x] Ensure `Auto Renewal Cancel` remarks remain visible without changing computed status.
 
 ## Milestone 9: Backend API
 
@@ -113,6 +115,8 @@ This checklist is derived from:
 - [ ] Add validation for required fields, dates, and non-negative amounts.
 - [ ] Add sorting by renewal date, expiration date, amount, and updated date.
 - [ ] Add filters for status, renewal cycle, done state, date range, and service search.
+- [ ] Replace frontend mock subscription data with API-backed data.
+- [ ] Verify real subscription records load from Neon through the backend API.
 
 ## Milestone 10: CSV import and export
 
@@ -135,8 +139,9 @@ This checklist is derived from:
 - [ ] Choose final hosting providers.
 - [ ] Configure frontend deployment.
 - [ ] Configure backend deployment.
-- [ ] Configure managed PostgreSQL database.
-- [ ] Add production environment variables.
+- [x] Configure managed PostgreSQL database.
+- [x] Add Neon database environment variable templates.
+- [ ] Add production environment variables to hosting providers.
 - [ ] Configure daily cron for status refresh.
 - [ ] Verify migrations run in deployment.
 - [ ] Smoke test the deployed MVP.

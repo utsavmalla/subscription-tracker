@@ -1,10 +1,10 @@
+import {
+  calculateSubscriptionStatus,
+  type RenewalCycle as SharedRenewalCycle,
+  type SubscriptionStatus,
+} from "@subscription-tracker/shared";
+
 export type RenewalCycle = "Monthly" | "Quarterly" | "Yearly" | "One-time";
-export type SubscriptionStatus =
-  | "Active"
-  | "Upcoming"
-  | "Overdue"
-  | "Expired"
-  | "Completed";
 
 export type SubscriptionRow = {
   id: string;
@@ -21,7 +21,7 @@ export type SubscriptionRow = {
 
 export type SubscriptionFormValues = SubscriptionRow;
 
-export const statusOptions = ["All", "Active", "Upcoming", "Overdue", "Expired"] as const;
+export const statusOptions = ["All", "Active", "Upcoming", "DueToday", "Overdue", "Expired"] as const;
 export const cycleOptions = ["All", "Monthly", "Quarterly", "Yearly", "One-time"] as const;
 export const doneOptions = ["All", "Done", "Not done"] as const;
 export const dateRangeOptions = ["Any time", "This week", "Next 30 days", "This quarter"] as const;
@@ -117,26 +117,14 @@ export function formatDate(value: string) {
 }
 
 export function computeSubscriptionStatus(values: Pick<SubscriptionFormValues, "done" | "cycle" | "nextRenewal" | "expiration">): SubscriptionStatus {
-  if (values.done) {
-    return "Completed";
-  }
+  return calculateSubscriptionStatus({
+    renewalCycle: toSharedRenewalCycle(values.cycle),
+    done: values.done,
+    nextRenewalDate: values.nextRenewal,
+    expirationDate: values.expiration,
+  }).status;
+}
 
-  const now = new Date();
-  const renewalDate = new Date(values.nextRenewal);
-  const expirationDate = new Date(values.expiration);
-
-  if (values.cycle === "One-time" && expirationDate < now) {
-    return "Expired";
-  }
-
-  if (renewalDate < now) {
-    return "Overdue";
-  }
-
-  const deltaDays = Math.ceil((renewalDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  if (deltaDays <= 7) {
-    return "Upcoming";
-  }
-
-  return "Active";
+function toSharedRenewalCycle(cycle: RenewalCycle): SharedRenewalCycle {
+  return cycle === "One-time" ? "OneTime" : cycle;
 }
