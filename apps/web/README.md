@@ -65,6 +65,13 @@ npm run build:web
 npm run lint:web
 ```
 
+Prisma commands should be run from the repository root so they use `prisma.config.ts`:
+
+```bash
+npm run prisma:validate
+npm run prisma:migrate:deploy
+```
+
 From `apps/web`:
 
 ```bash
@@ -86,6 +93,25 @@ Open:
 ```text
 http://localhost:3000
 ```
+
+## Deployment
+
+Create the Vercel project with `apps/web` as the Root Directory. The local `vercel.json` sets the Next.js framework preset and app-level build/dev commands.
+
+Production environment variables required by this app:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+NEXT_PUBLIC_SITE_URL
+SUPABASE_SERVICE_ROLE_KEY
+DATABASE_URL
+DIRECT_URL
+```
+
+Use Supabase transaction pooling for runtime `DATABASE_URL`, and use the session pooler or direct connection for `DIRECT_URL` migrations. Add the production `/auth/callback` URL to Supabase Auth redirect URLs before smoke testing sign-in.
+
+The scheduled refresh endpoint is not deployment-ready for cron yet; keep Supabase scheduled Edge Function setup in Milestone 11.
 
 ## Important Files
 

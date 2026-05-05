@@ -160,7 +160,7 @@ This checklist is derived from:
 ## Milestone 12: Deployment
 
 - [x] Select target hosting stack: Next.js app on Vercel or similar, Supabase for Postgres/Auth/scheduled functions.
-- [ ] Configure Next.js app deployment.
+- [x] Configure Next.js app deployment.
 - [ ] Configure Supabase project for production.
 - [x] Configure legacy managed PostgreSQL database. Not the target database for new MVP work.
 - [x] Add legacy Neon database environment variable templates. Not the target environment for new MVP work.

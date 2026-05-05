@@ -86,6 +86,18 @@ Run checks:
 npm run test
 ```
 
+Validate the Prisma schema:
+
+```bash
+npm run prisma:validate
+```
+
+Deploy Prisma migrations to the configured Supabase database:
+
+```bash
+npm run prisma:migrate:deploy
+```
+
 ## Local URLs
 
 - Web app: `http://localhost:3000`
@@ -107,7 +119,46 @@ The same public values are mirrored in `apps/web/.env.example`. Legacy Supabase 
 
 Supabase Auth must have email magic links enabled. To use guest mode, enable Anonymous Sign-Ins; to upgrade guests by email, enable manual identity linking in the Supabase Auth provider settings.
 
-`DATABASE_URL` is used by the running app and should use Supabase transaction pooling for serverless deployments. `DIRECT_URL` is used by Prisma migrations and should use the session pooler or direct connection.
+`DATABASE_URL` is used by the running app and should use Supabase transaction pooling for serverless deployments. `DIRECT_URL` is used by Prisma migrations and should use the session pooler or direct connection. Prisma CLI commands run from the repository root load `.env`, `apps/web/.env`, and `apps/web/.env.local` when present.
+
+## Deployment
+
+Deploy `apps/web` as the Vercel project root. Vercel should use the Next.js framework preset and the `apps/web/vercel.json` defaults:
+
+```text
+Framework Preset: Next.js
+Root Directory: apps/web
+Build Command: npm run build
+Development Command: npm run dev
+```
+
+Set these production environment variables in Vercel:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+NEXT_PUBLIC_SITE_URL
+SUPABASE_SERVICE_ROLE_KEY
+DATABASE_URL
+DIRECT_URL
+```
+
+Use the Supabase transaction pooler for `DATABASE_URL` and the session pooler or direct connection for `DIRECT_URL`. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only; never expose it with a `NEXT_PUBLIC_` prefix.
+
+Before the first production deployment, configure Supabase Auth with email magic links, Anonymous Sign-Ins, manual identity linking, and the production callback URL:
+
+```text
+https://YOUR_DOMAIN/auth/callback
+```
+
+From the repository root, verify and apply migrations against production after loading the production `DIRECT_URL`:
+
+```bash
+npm run prisma:validate
+npm run prisma:migrate:deploy
+```
+
+Scheduled status refresh is intentionally not part of this deployment pass. `/api/reminders/refresh` is still session-user protected and should not be wired to a production scheduler until the Milestone 11 scheduled-job work is completed.
 
 ## Project Docs
 

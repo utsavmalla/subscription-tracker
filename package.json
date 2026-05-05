@@ -12,6 +12,8 @@
     "build:web": "npm --prefix apps/web run build",
     "lint": "npm run lint:web",
     "lint:web": "npm --prefix apps/web run lint",
+    "prisma:validate": "prisma validate",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "test": "npm --prefix apps/web run lint"
   },
   "engines": {
