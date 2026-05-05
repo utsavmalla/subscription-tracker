@@ -33,6 +33,15 @@ apps/web/src/
 - Put temporary mock/static data in `src/data`, not inside component folders.
 - Put frontend-only types in `src/types`. Put app-local domain helpers and contracts in `src/lib` until another package boundary exists.
 
+## Supabase Auth and Data Access
+
+- Use `src/server/auth/currentUser.ts` helpers for identity: `requireCurrentUser` in pages/actions and `requireCurrentApiUser` in route handlers.
+- Do not read Supabase auth cookies directly in feature code. Keep Supabase client creation in `src/lib/supabase`.
+- Do not reintroduce `SUBSCRIPTION_TRACKER_DEV_USER_ID`; request ownership comes from the verified Supabase session.
+- Keep Prisma access server-only through `src/server`, and always scope subscription/reminder queries by `userId`.
+- Guest mode uses Supabase anonymous users. Preserve the 10-subscription guest cap unless the product spec changes.
+- Do not use `user_metadata` for authorization decisions. Use the Supabase user id and server-side checks instead.
+
 ## Checks
 
 - Run `npm run lint:web` after frontend code changes.

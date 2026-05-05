@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { getCurrentUser } from "@/server/auth/currentUser";
+import { requireCurrentApiUser } from "@/server/auth/currentUser";
 import { listSubscriptions } from "@/server/subscriptions/service";
 import type {
   SortDirection,
@@ -8,7 +8,11 @@ import type {
 } from "@/lib/subscriptions/types";
 
 export async function GET(request: NextRequest) {
-  const user = await getCurrentUser();
+  const user = await requireCurrentApiUser();
+  if (user instanceof Response) {
+    return user;
+  }
+
   const searchParams = request.nextUrl.searchParams;
   const rows = await listSubscriptions(user.id, {
     search: searchParams.get("search") ?? undefined,

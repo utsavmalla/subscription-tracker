@@ -47,10 +47,13 @@ cp apps/web/.env.example apps/web/.env
 
 ```text
 NEXT_PUBLIC_SUPABASE_URL=https://PROJECT_REF.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=SUPABASE_ANON_KEY
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_PROJECT_KEY
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-Server-only Supabase and database credentials belong in the root/local deployment environment, not in public browser variables.
+Legacy Supabase anon keys are also supported through `NEXT_PUBLIC_SUPABASE_ANON_KEY` when needed. Server-only Supabase and database credentials belong in the root/local deployment environment, not in public browser variables.
+
+Supabase Auth must have email magic links enabled. Guest mode requires Anonymous Sign-Ins, and guest upgrade requires manual identity linking in the Supabase Auth provider settings.
 
 ## Commands
 

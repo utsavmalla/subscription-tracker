@@ -1,17 +1,30 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getCurrentUser } from "@/server/auth/currentUser";
+import { requireCurrentUser } from "@/server/auth/currentUser";
 import {
+  countSubscriptions,
   createSubscription,
   deleteSubscription,
   markSubscriptionDone,
   updateSubscription,
 } from "@/server/subscriptions/service";
-import type { SubscriptionMutationInput } from "@/lib/subscriptions/types";
+import type {
+  ActionResult,
+  SubscriptionMutationInput,
+} from "@/lib/subscriptions/types";
 
-export async function createSubscriptionAction(input: SubscriptionMutationInput) {
-  const user = await getCurrentUser();
+const guestSubscriptionLimit = 10;
+
+export async function createSubscriptionAction(
+  input: SubscriptionMutationInput,
+): Promise<ActionResult> {
+  const user = await requireCurrentUser();
+  const guestLimitResult = await enforceGuestCreateLimit(user.id, user.isAnonymous);
+  if (guestLimitResult) {
+    return guestLimitResult;
+  }
+
   const result = await createSubscription(user.id, input);
 
   if (result.ok) {
@@ -24,8 +37,8 @@ export async function createSubscriptionAction(input: SubscriptionMutationInput)
 export async function updateSubscriptionAction(
   id: string,
   input: SubscriptionMutationInput,
-) {
-  const user = await getCurrentUser();
+): Promise<ActionResult> {
+  const user = await requireCurrentUser();
   const result = await updateSubscription(user.id, id, input);
 
   if (result.ok) {
@@ -35,8 +48,8 @@ export async function updateSubscriptionAction(
   return result;
 }
 
-export async function deleteSubscriptionAction(id: string) {
-  const user = await getCurrentUser();
+export async function deleteSubscriptionAction(id: string): Promise<ActionResult> {
+  const user = await requireCurrentUser();
   const result = await deleteSubscription(user.id, id);
 
   if (result.ok) {
@@ -46,8 +59,11 @@ export async function deleteSubscriptionAction(id: string) {
   return result;
 }
 
-export async function markSubscriptionDoneAction(id: string, done: boolean) {
-  const user = await getCurrentUser();
+export async function markSubscriptionDoneAction(
+  id: string,
+  done: boolean,
+): Promise<ActionResult> {
+  const user = await requireCurrentUser();
   const result = await markSubscriptionDone(user.id, id, done);
 
   if (result.ok) {
@@ -55,6 +71,27 @@ export async function markSubscriptionDoneAction(id: string, done: boolean) {
   }
 
   return result;
+}
+
+async function enforceGuestCreateLimit(
+  userId: string,
+  isAnonymous: boolean,
+): Promise<ActionResult | null> {
+  if (!isAnonymous) {
+    return null;
+  }
+
+  const subscriptionCount = await countSubscriptions(userId);
+
+  if (subscriptionCount < guestSubscriptionLimit) {
+    return null;
+  }
+
+  return {
+    ok: false,
+    message:
+      "Guest mode is limited to 10 subscriptions. Add an email on the login page to keep going.",
+  };
 }
 
 function revalidateSubscriptionPaths(id?: string) {

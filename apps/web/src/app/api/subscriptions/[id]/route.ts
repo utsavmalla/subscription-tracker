@@ -1,12 +1,16 @@
 import type { NextRequest } from "next/server";
-import { getCurrentUser } from "@/server/auth/currentUser";
+import { requireCurrentApiUser } from "@/server/auth/currentUser";
 import { getSubscriptionById } from "@/server/subscriptions/service";
 
 export async function GET(
   _request: NextRequest,
   context: RouteContext<"/api/subscriptions/[id]">,
 ) {
-  const user = await getCurrentUser();
+  const user = await requireCurrentApiUser();
+  if (user instanceof Response) {
+    return user;
+  }
+
   const { id } = await context.params;
   const subscription = await getSubscriptionById(user.id, id);
 

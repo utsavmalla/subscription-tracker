@@ -24,8 +24,8 @@ This checklist is derived from:
 - [x] Add basic lint, format, and build scripts.
 - [ ] Create Supabase project.
 - [ ] Configure Supabase Postgres connection settings for Prisma.
-- [ ] Configure Supabase Auth project settings.
-- [ ] Add Supabase environment variable templates for local development.
+- [ ] Configure Supabase Auth project settings in the Supabase dashboard.
+- [x] Add Supabase environment variable templates for local development.
 
 ## Milestone 2: Design handoff and frontend reference
 
@@ -104,6 +104,12 @@ This checklist is derived from:
 - [x] Apply initial Prisma migration to legacy Neon database. Not the target deployment database.
 - [x] Apply Prisma migration to Supabase Postgres.
 - [x] Add Supabase Auth user ownership fields and access constraints to the data model.
+- [x] Add Supabase SSR auth client helpers for browser, server, and proxy session refresh.
+- [x] Replace temporary development owner id with session-backed Supabase user resolution.
+- [x] Add email magic-link login flow and `/auth/callback` route.
+- [x] Add sign-out flow.
+- [x] Add capped guest mode with Supabase anonymous users.
+- [x] Enforce guest create limit at 10 subscriptions.
 - [x] Implement status calculation for recurring subscriptions.
 - [x] Implement status calculation for one-time subscriptions.
 - [x] Recalculate status on create and update.
@@ -178,7 +184,8 @@ This checklist is derived from:
 
 ## Future improvements
 
-- [ ] Add user authentication and personal data isolation.
+- [x] Add user authentication and personal data isolation.
+- [x] Add capped guest mode with Supabase anonymous users.
 - [ ] Add shared household or team subscriptions.
 - [ ] Add email reminders.
 - [ ] Add push notifications.

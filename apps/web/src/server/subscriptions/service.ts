@@ -29,6 +29,10 @@ const defaultSortField: SubscriptionSortField = "nextRenewal";
 const defaultSortDirection: SortDirection = "asc";
 const millisecondsPerDay = 24 * 60 * 60 * 1000;
 
+export async function countSubscriptions(userId: string): Promise<number> {
+  return prisma.subscription.count({ where: { userId } });
+}
+
 export async function listSubscriptions(
   userId: string,
   filters: SubscriptionListFilters = {},

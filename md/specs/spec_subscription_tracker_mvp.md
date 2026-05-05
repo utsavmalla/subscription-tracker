@@ -30,11 +30,12 @@ Many people track subscriptions in spreadsheets, but spreadsheets are weak at pr
 - Simple reminder flow for upcoming renewals and overdue subscriptions.
 - Basic summary totals by month and by status.
 - Support both recurring subscriptions and one-time subscriptions.
+- User accounts with personal data isolation.
+- Guest mode with limited anonymous access before account upgrade.
 
 ### Could have
 - Email reminders.
 - Multi-currency support beyond USD and NPR display.
-- User accounts with personal data isolation.
 - Calendar view.
 - Renewal history/audit trail.
 
@@ -137,6 +138,9 @@ The stack should prioritize open-source tools or platforms with a meaningful fre
 #### Database
 - **Supabase Postgres** as the primary database.
 - **Supabase Auth** for authentication and personal data isolation.
+  - MVP permanent accounts use email magic links.
+  - Guest mode uses Supabase anonymous users.
+  - Both permanent and anonymous users are isolated through `user_id`.
 - **Prisma ORM** for schema, migrations, and type-safe database access.
   - Prisma ORM is open-source and works well with Next.js and Supabase Postgres.
 
@@ -147,6 +151,15 @@ The stack should prioritize open-source tools or platforms with a meaningful fre
 #### Notifications
 - **MVP**: in-app alerts only.
 - **Later**: email reminders with Resend and Slack webhook alerts.
+
+#### Auth and guest access
+- Supabase Auth is the identity provider for all persisted user data.
+- Permanent users sign in with email magic links.
+- Guest users are Supabase anonymous users, not unauthenticated public visitors.
+- Guest users can create up to 10 subscriptions and can view/edit/delete their own records.
+- CSV import/export is available only to permanent users until the guest policy changes.
+- Guest upgrade links an email identity to the anonymous user so existing records remain under the same `user_id`.
+- Server-side code must derive ownership from the verified Supabase session; no fixed development owner id is used.
 
 ### Open-source / free-tier-first tool choices
 
@@ -407,6 +420,10 @@ stop
    - CSV import/export handlers
    - protected reminder/status refresh boundary
 3. Create a Supabase project and configure Supabase Auth.
+   - Enable email magic links.
+   - Enable Anonymous Sign-Ins for guest mode.
+   - Enable manual identity linking for guest upgrade.
+   - Add local and production `/auth/callback` URLs to allowed redirect URLs.
 4. Define Prisma schema for subscriptions, user ownership, and optional reminder events.
 5. Connect Prisma to Supabase Postgres and apply initial migrations.
 6. Build backend boundaries:
@@ -497,7 +514,8 @@ Success can be measured by:
 ## MVP scope
 
 The MVP should include:
-- Single-user web app
+- Multi-user web app with personal data isolation
+- Limited guest mode backed by Supabase anonymous users
 - Next.js App Router frontend and backend layer
 - Supabase Postgres database
 - Supabase Auth
@@ -511,7 +529,6 @@ The MVP should include:
 
 ## Future improvements
 
-- User authentication and multi-user support
 - Shared household/team subscriptions
 - Email and push notifications
 - Calendar integration

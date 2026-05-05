@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/layout";
 import { SubscriptionForm } from "@/components/subscriptions/SubscriptionForm";
-import { getCurrentUser } from "@/server/auth/currentUser";
+import { requireCurrentUser } from "@/server/auth/currentUser";
 import { getSubscriptionFormValues } from "@/server/subscriptions/service";
 import { notFound } from "next/navigation";
 
@@ -10,7 +10,7 @@ type Props = { params: Promise<{ id: string }> };
 
 export default async function EditSubscriptionPage({ params }: Props) {
   const { id } = await params;
-  const user = await getCurrentUser();
+  const user = await requireCurrentUser();
   const subscription = await getSubscriptionFormValues(user.id, id);
   if (!subscription) {
     notFound();
