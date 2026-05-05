@@ -102,8 +102,8 @@ This checklist is derived from:
 - [x] Add optional `ReminderEvent` Prisma model.
 - [x] Create initial Prisma migration.
 - [x] Apply initial Prisma migration to legacy Neon database. Not the target deployment database.
-- [ ] Apply Prisma migration to Supabase Postgres.
-- [ ] Add Supabase Auth user ownership fields and access constraints to the data model.
+- [x] Apply Prisma migration to Supabase Postgres.
+- [x] Add Supabase Auth user ownership fields and access constraints to the data model.
 - [x] Implement status calculation for recurring subscriptions.
 - [x] Implement status calculation for one-time subscriptions.
 - [x] Recalculate status on create and update.
