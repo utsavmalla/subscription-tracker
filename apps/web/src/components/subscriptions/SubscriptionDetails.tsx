@@ -1,5 +1,5 @@
 import { StatusBadge } from "@/components/ui";
-import type { SubscriptionRow } from "@/data/subscriptions";
+import type { SubscriptionRow } from "@/lib/subscriptions/types";
 import { formatDate } from "@/data/subscriptions";
 
 type Props = {

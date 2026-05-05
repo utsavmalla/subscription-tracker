@@ -2,12 +2,16 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import {
+  createSubscriptionAction,
+  updateSubscriptionAction,
+} from "@/actions/subscriptions";
 import { StatusBadge } from "@/components/ui";
-import type { SubscriptionFormValues } from "@/data/subscriptions";
 import {
   computeSubscriptionStatus as getStatusLabel,
   formatDate,
 } from "@/data/subscriptions";
+import type { SubscriptionFormValues } from "@/lib/subscriptions/types";
 
 type Props = {
   initialValues: SubscriptionFormValues;
@@ -31,6 +35,8 @@ export function SubscriptionForm({
   const router = useRouter();
   const [values, setValues] = useState<SubscriptionFormValues>(initialValues);
   const [toastMessage, setToastMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const computedStatus = useMemo(
     () => getStatusLabel(values),
@@ -48,7 +54,20 @@ export function SubscriptionForm({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setToastMessage("Subscription saved.");
+    setIsSubmitting(true);
+    setFieldErrors({});
+
+    const result = values.id
+      ? await updateSubscriptionAction(values.id, values)
+      : await createSubscriptionAction(values);
+
+    setIsSubmitting(false);
+    setToastMessage(result.message);
+
+    if (!result.ok) {
+      setFieldErrors(result.fieldErrors ?? {});
+      return;
+    }
 
     if (resetAfterSave) {
       setValues(initialValues);
@@ -60,9 +79,19 @@ export function SubscriptionForm({
     }
   };
 
-  const handleSecondary = () => {
-    setToastMessage("Subscription saved. Add another.");
-    setValues(initialValues);
+  const handleSecondary = async () => {
+    setIsSubmitting(true);
+    setFieldErrors({});
+    const result = await createSubscriptionAction(values);
+    setIsSubmitting(false);
+    setToastMessage(result.ok ? "Subscription saved. Add another." : result.message);
+
+    if (result.ok) {
+      setValues(initialValues);
+      return;
+    }
+
+    setFieldErrors(result.fieldErrors ?? {});
   };
 
   const handleCancel = () => {
@@ -92,6 +121,9 @@ export function SubscriptionForm({
                   placeholder="Netflix, Canva Pro, etc."
                   className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200"
                 />
+                {fieldErrors.service && (
+                  <p className="mt-2 text-sm text-rose-600">{fieldErrors.service}</p>
+                )}
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -105,6 +137,9 @@ export function SubscriptionForm({
                     placeholder="$12.99"
                     className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200"
                   />
+                  {fieldErrors.amount && (
+                    <p className="mt-2 text-sm text-rose-600">{fieldErrors.amount}</p>
+                  )}
                 </label>
 
                 <label className="block text-sm font-semibold text-slate-900">
@@ -135,6 +170,9 @@ export function SubscriptionForm({
                     }
                     className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200"
                   />
+                  {fieldErrors.expiration && (
+                    <p className="mt-2 text-sm text-rose-600">{fieldErrors.expiration}</p>
+                  )}
                 </label>
 
                 <label className="block text-sm font-semibold text-slate-900">
@@ -147,10 +185,28 @@ export function SubscriptionForm({
                     }
                     className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200"
                   />
+                  {fieldErrors.nextRenewal && (
+                    <p className="mt-2 text-sm text-rose-600">{fieldErrors.nextRenewal}</p>
+                  )}
                 </label>
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">
+                <label className="block text-sm font-semibold text-slate-900">
+                  Date paid
+                  <input
+                    type="date"
+                    value={values.datePaid}
+                    onChange={(event) =>
+                      handleInput("datePaid", event.target.value)
+                    }
+                    className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200"
+                  />
+                  {fieldErrors.datePaid && (
+                    <p className="mt-2 text-sm text-rose-600">{fieldErrors.datePaid}</p>
+                  )}
+                </label>
+
                 <label className="block text-sm font-semibold text-slate-900">
                   Done
                   <select
@@ -165,18 +221,20 @@ export function SubscriptionForm({
                   </select>
                 </label>
 
-                <label className="block text-sm font-semibold text-slate-900">
-                  Remarks
-                  <textarea
-                    value={values.remarks}
-                    onChange={(event) =>
-                      handleInput("remarks", event.target.value)
-                    }
-                    rows={4}
-                    className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200"
-                    placeholder="Plan notes, cancellation details, or billing reminders"
-                  />
-                </label>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900">
+                    Remarks
+                    <textarea
+                      value={values.remarks}
+                      onChange={(event) =>
+                        handleInput("remarks", event.target.value)
+                      }
+                      rows={4}
+                      className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200"
+                      placeholder="Plan notes, cancellation details, or billing reminders"
+                    />
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -215,7 +273,7 @@ export function SubscriptionForm({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-slate-500">
-              Enter the subscription details above. The form is locally interactive and can be wired to an API later.
+              Enter the subscription details above. Saves are validated and persisted through the Next.js backend layer.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -230,6 +288,7 @@ export function SubscriptionForm({
               <button
                 type="button"
                 onClick={handleSecondary}
+                disabled={isSubmitting}
                 className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
               >
                 {secondaryActionLabel}
@@ -237,9 +296,10 @@ export function SubscriptionForm({
             )}
             <button
               type="submit"
+              disabled={isSubmitting}
               className="rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-800"
             >
-              {submitLabel}
+              {isSubmitting ? "Saving..." : submitLabel}
             </button>
           </div>
         </div>

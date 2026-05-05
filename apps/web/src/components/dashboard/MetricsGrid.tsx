@@ -1,6 +1,10 @@
-import { metrics } from "@/data/dashboard";
+import type { DashboardMetric } from "@/lib/subscriptions/types";
 
-export function MetricsGrid() {
+type Props = {
+  metrics: DashboardMetric[];
+};
+
+export function MetricsGrid({ metrics }: Props) {
   return (
     <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
       {metrics.map((metric) => (

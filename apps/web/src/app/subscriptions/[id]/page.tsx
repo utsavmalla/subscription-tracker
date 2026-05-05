@@ -2,13 +2,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/layout";
 import { SubscriptionDetails } from "@/components/subscriptions/SubscriptionDetails";
-import { getSubscriptionById } from "@/data/subscriptions";
+import { getCurrentUser } from "@/server/auth/currentUser";
+import { getSubscriptionById } from "@/server/subscriptions/service";
+
+export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function SubscriptionDetailPage({ params }: Props) {
   const { id } = await params;
-  const subscription = getSubscriptionById(id);
+  const user = await getCurrentUser();
+  const subscription = await getSubscriptionById(user.id, id);
   if (!subscription) {
     notFound();
   }

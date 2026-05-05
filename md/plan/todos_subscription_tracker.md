@@ -112,24 +112,24 @@ This checklist is derived from:
 
 ## Milestone 9: Next.js Backend Layer
 
-- [ ] Create `apps/web` backend folder structure for actions, route handlers, queries, and services.
-- [ ] Create subscription Server Actions for create, update, delete, and mark done.
-- [ ] Create subscription Route Handlers for HTTP-style list/detail access where needed.
-- [ ] Create dashboard summary query handler.
+- [x] Create `apps/web` backend folder structure for actions, route handlers, queries, and services.
+- [x] Create subscription Server Actions for create, update, delete, and mark done.
+- [x] Create subscription Route Handlers for HTTP-style list/detail access where needed.
+- [x] Create dashboard summary query handler.
 - [ ] Create CSV import/export Route Handlers.
-- [ ] Create reminder/status refresh function boundary for scheduled execution.
-- [ ] Implement list subscriptions handler/query.
-- [ ] Implement get subscription by id handler/query.
-- [ ] Implement create subscription action.
-- [ ] Implement update subscription action.
-- [ ] Implement delete subscription action.
-- [ ] Implement mark-done quick action.
-- [ ] Implement dashboard summary query.
-- [ ] Add validation for required fields, dates, and non-negative amounts.
-- [ ] Add sorting by renewal date, expiration date, amount, and updated date.
-- [ ] Add filters for status, renewal cycle, done state, date range, and service search.
-- [ ] Replace frontend mock subscription data with Next.js handlers/actions backed by Prisma.
-- [ ] Verify real subscription records load from Supabase Postgres through Prisma.
+- [x] Create reminder/status refresh function boundary for scheduled execution.
+- [x] Implement list subscriptions handler/query.
+- [x] Implement get subscription by id handler/query.
+- [x] Implement create subscription action.
+- [x] Implement update subscription action.
+- [x] Implement delete subscription action.
+- [x] Implement mark-done quick action.
+- [x] Implement dashboard summary query.
+- [x] Add validation for required fields, dates, and non-negative amounts.
+- [x] Add sorting by renewal date, expiration date, amount, and updated date.
+- [x] Add filters for status, renewal cycle, done state, date range, and service search.
+- [x] Replace frontend mock subscription data with Next.js handlers/actions backed by Prisma.
+- [x] Verify real subscription records load from Supabase Postgres through Prisma.
 
 ## Milestone 10: CSV import and export
 

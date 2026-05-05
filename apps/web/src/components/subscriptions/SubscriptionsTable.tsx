@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { StatusBadge } from "@/components/ui";
 import { formatDate } from "@/data/subscriptions";
-import type { SubscriptionRow } from "@/data/subscriptions";
+import type { SubscriptionRow } from "@/lib/subscriptions/types";
 
 export type SortField = "service" | "amount" | "nextRenewal" | "expiration" | "updated";
 

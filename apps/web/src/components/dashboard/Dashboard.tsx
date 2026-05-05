@@ -5,16 +5,33 @@ import { HeroSummary } from "./HeroSummary";
 import { MetricsGrid } from "./MetricsGrid";
 import { SpendAndUpdates } from "./SpendAndUpdates";
 import { SubscriptionPreview } from "./SubscriptionPreview";
+import type { DashboardSummary } from "@/lib/subscriptions/types";
 
-export function Dashboard() {
+type Props = {
+  summary: DashboardSummary;
+};
+
+export function Dashboard({ summary }: Props) {
   return (
     <AppShell>
       <DashboardHeader />
-      <HeroSummary />
-      <MetricsGrid />
-      <AttentionPanels />
-      <SpendAndUpdates />
-      <SubscriptionPreview />
+      <HeroSummary
+        monthlySpend={summary.monthlySpend}
+        reviewThisWeekCount={summary.reviewThisWeekCount}
+        overdueCount={summary.overdueItems.length}
+      />
+      <MetricsGrid metrics={summary.metrics} />
+      <AttentionPanels
+        upcomingRenewals={summary.upcomingRenewals}
+        overdueItems={summary.overdueItems}
+      />
+      <SpendAndUpdates
+        monthlySpend={summary.monthlySpend}
+        recurringSpend={summary.recurringSpend}
+        oneTimeSpend={summary.oneTimeSpend}
+        recentUpdates={summary.recentUpdates}
+      />
+      <SubscriptionPreview previewRows={summary.previewRows} />
     </AppShell>
   );
 }

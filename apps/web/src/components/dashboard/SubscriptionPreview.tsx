@@ -1,9 +1,14 @@
-import { previewRows } from "@/data/dashboard";
 import { StatusBadge } from "@/components/ui";
+import { formatDate } from "@/data/subscriptions";
+import type { SubscriptionRow } from "@/lib/subscriptions/types";
 
 const filters = ["All", "Upcoming", "Overdue", "Active"];
 
-export function SubscriptionPreview() {
+type Props = {
+  previewRows: SubscriptionRow[];
+};
+
+export function SubscriptionPreview({ previewRows }: Props) {
   return (
     <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -31,13 +36,13 @@ export function SubscriptionPreview() {
         </div>
       </div>
 
-      <DesktopTable />
-      <MobileCards />
+      <DesktopTable previewRows={previewRows} />
+      <MobileCards previewRows={previewRows} />
     </section>
   );
 }
 
-function DesktopTable() {
+function DesktopTable({ previewRows }: Props) {
   return (
     <div className="hidden overflow-hidden rounded-md border border-slate-200 md:block">
       <table className="w-full border-collapse text-left text-sm">
@@ -59,7 +64,7 @@ function DesktopTable() {
               </td>
               <td className="px-4 py-4 text-slate-600">{row.amount}</td>
               <td className="px-4 py-4 text-slate-600">{row.cycle}</td>
-              <td className="px-4 py-4 text-slate-600">{row.next}</td>
+              <td className="px-4 py-4 text-slate-600">{formatDate(row.nextRenewal)}</td>
               <td className="px-4 py-4">
                 <StatusBadge status={row.status} />
               </td>
@@ -74,7 +79,7 @@ function DesktopTable() {
   );
 }
 
-function MobileCards() {
+function MobileCards({ previewRows }: Props) {
   return (
     <div className="space-y-3 md:hidden">
       {previewRows.map((row) => (
@@ -92,7 +97,7 @@ function MobileCards() {
             <StatusBadge status={row.status} />
           </div>
           <p className="mt-3 text-sm text-slate-600">
-            Next renewal: {row.next}
+            Next renewal: {formatDate(row.nextRenewal)}
           </p>
           <p className="mt-1 text-sm text-slate-500">{row.remarks}</p>
         </article>

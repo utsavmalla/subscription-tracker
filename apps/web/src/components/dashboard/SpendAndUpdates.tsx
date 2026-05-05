@@ -1,19 +1,31 @@
-import { recentUpdates } from "@/data/dashboard";
 import { Panel } from "@/components/ui";
+import type { RecentUpdateItem } from "@/lib/subscriptions/types";
 
-export function SpendAndUpdates() {
+type Props = {
+  monthlySpend: string;
+  recurringSpend: string;
+  oneTimeSpend: string;
+  recentUpdates: RecentUpdateItem[];
+};
+
+export function SpendAndUpdates({
+  monthlySpend,
+  recurringSpend,
+  oneTimeSpend,
+  recentUpdates,
+}: Props) {
   return (
     <section className="mt-6 grid gap-5 lg:grid-cols-[1fr_1fr]">
       <Panel title="Monthly Spend Estimate">
-        <p className="text-3xl font-bold text-slate-950">$284.46</p>
+        <p className="text-3xl font-bold text-slate-950">{monthlySpend}</p>
         <p className="mt-1 text-sm text-slate-500">
           Estimated recurring spend based on active subscriptions.
         </p>
         <div className="mt-5 space-y-3">
-          <SpendBar label="Recurring" value="$261.46" width="w-[82%]" />
+          <SpendBar label="Recurring" value={recurringSpend} width="w-[82%]" />
           <SpendBar
             label="One-time"
-            value="$23.00"
+            value={oneTimeSpend}
             width="w-[18%]"
             color="bg-amber-500"
           />
@@ -38,6 +50,11 @@ export function SpendAndUpdates() {
               </p>
             </div>
           ))}
+          {recentUpdates.length === 0 && (
+            <p className="rounded-md border border-slate-200 p-3 text-sm text-slate-500">
+              No recent updates.
+            </p>
+          )}
         </div>
       </Panel>
     </section>

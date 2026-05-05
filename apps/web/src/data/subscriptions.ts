@@ -3,23 +3,13 @@ import {
   type RenewalCycle as SharedRenewalCycle,
   type SubscriptionStatus,
 } from "@/lib/subscriptions/status";
+import type {
+  SubscriptionDisplayCycle,
+  SubscriptionFormValues,
+  SubscriptionRow,
+} from "@/lib/subscriptions/types";
 
-export type RenewalCycle = "Monthly" | "Quarterly" | "Yearly" | "One-time";
-
-export type SubscriptionRow = {
-  id: string;
-  service: string;
-  amount: string;
-  cycle: RenewalCycle;
-  nextRenewal: string;
-  expiration: string;
-  status: SubscriptionStatus;
-  done: boolean;
-  updated: string;
-  remarks: string;
-};
-
-export type SubscriptionFormValues = SubscriptionRow;
+export type { SubscriptionFormValues, SubscriptionRow };
 
 export const statusOptions = ["All", "Active", "Upcoming", "DueToday", "Overdue", "Expired"] as const;
 export const cycleOptions = ["All", "Monthly", "Quarterly", "Yearly", "One-time"] as const;
@@ -41,6 +31,7 @@ export const subscriptionRows: SubscriptionRow[] = [
     nextRenewal: "2026-05-04",
     expiration: "2027-05-04",
     status: "Upcoming",
+    alertState: "Upcoming",
     done: false,
     updated: "2026-04-28",
     remarks: "Family streaming plan",
@@ -53,6 +44,7 @@ export const subscriptionRows: SubscriptionRow[] = [
     nextRenewal: "2026-04-28",
     expiration: "2027-04-28",
     status: "Overdue",
+    alertState: "Overdue",
     done: false,
     updated: "2026-04-26",
     remarks: "Team design workspace",
@@ -65,6 +57,7 @@ export const subscriptionRows: SubscriptionRow[] = [
     nextRenewal: "2026-09-22",
     expiration: "2027-09-22",
     status: "Active",
+    alertState: "None",
     done: true,
     updated: "2026-04-25",
     remarks: "Company domain registration",
@@ -77,6 +70,7 @@ export const subscriptionRows: SubscriptionRow[] = [
     nextRenewal: "2026-05-06",
     expiration: "2027-05-06",
     status: "Upcoming",
+    alertState: "Upcoming",
     done: false,
     updated: "2026-04-30",
     remarks: "Creative suite for content team",
@@ -89,6 +83,7 @@ export const subscriptionRows: SubscriptionRow[] = [
     nextRenewal: "2026-05-08",
     expiration: "2027-05-08",
     status: "Upcoming",
+    alertState: "Upcoming",
     done: false,
     updated: "2026-04-27",
     remarks: "Music account",
@@ -102,9 +97,8 @@ export const initialSubscriptionValues: SubscriptionFormValues = {
   cycle: "Monthly",
   nextRenewal: new Date().toISOString().slice(0, 10),
   expiration: new Date().toISOString().slice(0, 10),
-  status: "Active",
+  datePaid: "",
   done: false,
-  updated: new Date().toISOString().slice(0, 10),
   remarks: "",
 };
 
@@ -113,7 +107,16 @@ export function getSubscriptionById(id: string) {
 }
 
 export function formatDate(value: string) {
-  return displayFormatter.format(new Date(value));
+  if (!value) {
+    return "Not set";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "Not set";
+  }
+
+  return displayFormatter.format(date);
 }
 
 export function computeSubscriptionStatus(values: Pick<SubscriptionFormValues, "done" | "cycle" | "nextRenewal" | "expiration">): SubscriptionStatus {
@@ -125,6 +128,6 @@ export function computeSubscriptionStatus(values: Pick<SubscriptionFormValues, "
   }).status;
 }
 
-function toSharedRenewalCycle(cycle: RenewalCycle): SharedRenewalCycle {
+function toSharedRenewalCycle(cycle: SubscriptionDisplayCycle): SharedRenewalCycle {
   return cycle === "One-time" ? "OneTime" : cycle;
 }

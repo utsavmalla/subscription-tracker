@@ -1,12 +1,9 @@
-import { Dashboard } from "@/components/dashboard";
 import { getCurrentUser } from "@/server/auth/currentUser";
 import { getDashboardSummary } from "@/server/subscriptions/service";
 
-export const dynamic = "force-dynamic";
-
-export default async function Home() {
+export async function GET() {
   const user = await getCurrentUser();
   const summary = await getDashboardSummary(user.id);
 
-  return <Dashboard summary={summary} />;
+  return Response.json({ summary });
 }

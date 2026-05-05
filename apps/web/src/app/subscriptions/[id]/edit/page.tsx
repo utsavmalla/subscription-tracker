@@ -1,13 +1,17 @@
 import { AppShell } from "@/components/layout";
 import { SubscriptionForm } from "@/components/subscriptions/SubscriptionForm";
-import { getSubscriptionById } from "@/data/subscriptions";
+import { getCurrentUser } from "@/server/auth/currentUser";
+import { getSubscriptionFormValues } from "@/server/subscriptions/service";
 import { notFound } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function EditSubscriptionPage({ params }: Props) {
   const { id } = await params;
-  const subscription = getSubscriptionById(id);
+  const user = await getCurrentUser();
+  const subscription = await getSubscriptionFormValues(user.id, id);
   if (!subscription) {
     notFound();
   }
