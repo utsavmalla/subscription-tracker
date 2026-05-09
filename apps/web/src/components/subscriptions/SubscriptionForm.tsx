@@ -11,7 +11,10 @@ import {
   computeSubscriptionStatus as getStatusLabel,
   formatDate,
 } from "@/data/subscriptions";
-import type { SubscriptionFormValues } from "@/lib/subscriptions/types";
+import type {
+  SubscriptionDisplayCycle,
+  SubscriptionFormValues,
+} from "@/lib/subscriptions/types";
 
 type Props = {
   initialValues: SubscriptionFormValues;
@@ -46,10 +49,23 @@ export function SubscriptionForm({
   const isOneTime = values.cycle === "One-time";
 
   const handleInput = (field: keyof SubscriptionFormValues, value: string) => {
-    setValues((current) => ({
-      ...current,
-      [field]: field === "done" ? value === "true" : value,
-    }));
+    setValues((current) => {
+      const nextValues = {
+        ...current,
+        [field]: field === "done" ? value === "true" : value,
+      };
+
+      if (field === "datePaid" || field === "cycle") {
+        const cycle = nextValues.cycle as SubscriptionDisplayCycle;
+        const nextRenewal = getNextRenewalDate(nextValues.datePaid, cycle);
+
+        if (nextRenewal) {
+          nextValues.nextRenewal = nextRenewal;
+        }
+      }
+
+      return nextValues;
+    });
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -69,13 +85,13 @@ export function SubscriptionForm({
       return;
     }
 
-    if (resetAfterSave) {
-      setValues(initialValues);
+    if (redirectTo) {
+      router.push(redirectTo);
       return;
     }
 
-    if (redirectTo) {
-      router.push(redirectTo);
+    if (resetAfterSave) {
+      setValues(initialValues);
     }
   };
 
@@ -161,38 +177,6 @@ export function SubscriptionForm({
 
               <div className="grid gap-4 lg:grid-cols-2">
                 <label className="block text-sm font-semibold text-slate-900">
-                  {isOneTime ? "Expiration date" : "Next renewal date"}
-                  <input
-                    type="date"
-                    value={values.expiration}
-                    onChange={(event) =>
-                      handleInput("expiration", event.target.value)
-                    }
-                    className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200"
-                  />
-                  {fieldErrors.expiration && (
-                    <p className="mt-2 text-sm text-rose-600">{fieldErrors.expiration}</p>
-                  )}
-                </label>
-
-                <label className="block text-sm font-semibold text-slate-900">
-                  Next renewal date
-                  <input
-                    type="date"
-                    value={values.nextRenewal}
-                    onChange={(event) =>
-                      handleInput("nextRenewal", event.target.value)
-                    }
-                    className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200"
-                  />
-                  {fieldErrors.nextRenewal && (
-                    <p className="mt-2 text-sm text-rose-600">{fieldErrors.nextRenewal}</p>
-                  )}
-                </label>
-              </div>
-
-              <div className="grid gap-4 lg:grid-cols-2">
-                <label className="block text-sm font-semibold text-slate-900">
                   Date paid
                   <input
                     type="date"
@@ -207,6 +191,29 @@ export function SubscriptionForm({
                   )}
                 </label>
 
+                <label className="block text-sm font-semibold text-slate-900">
+                  {isOneTime ? "Expiration date" : "Next renewal date"}
+                  <input
+                    type="date"
+                    value={isOneTime ? values.expiration : values.nextRenewal}
+                    onChange={(event) =>
+                      handleInput(
+                        isOneTime ? "expiration" : "nextRenewal",
+                        event.target.value,
+                      )
+                    }
+                    className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-200"
+                  />
+                  {!isOneTime && fieldErrors.nextRenewal && (
+                    <p className="mt-2 text-sm text-rose-600">{fieldErrors.nextRenewal}</p>
+                  )}
+                  {isOneTime && fieldErrors.expiration && (
+                    <p className="mt-2 text-sm text-rose-600">{fieldErrors.expiration}</p>
+                  )}
+                </label>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
                 <label className="block text-sm font-semibold text-slate-900">
                   Done
                   <select
@@ -312,4 +319,87 @@ export function SubscriptionForm({
       )}
     </div>
   );
+}
+
+function getNextRenewalDate(
+  datePaid: string,
+  cycle: SubscriptionDisplayCycle,
+): string {
+  if (!datePaid || cycle === "One-time") {
+    return "";
+  }
+
+  const dateParts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(datePaid);
+  if (!dateParts) {
+    return "";
+  }
+
+  const [, yearValue, monthValue, dayValue] = dateParts;
+  const year = Number(yearValue);
+  const monthIndex = Number(monthValue) - 1;
+  const day = Number(dayValue);
+
+  if (!isValidDateParts(year, monthIndex, day)) {
+    return "";
+  }
+
+  const monthsToAdd = getCycleMonthIncrement(cycle);
+  if (monthsToAdd === 0) {
+    return "";
+  }
+
+  const targetMonthIndex = monthIndex + monthsToAdd;
+  const targetYear = year + Math.floor(targetMonthIndex / 12);
+  const normalizedTargetMonthIndex = targetMonthIndex % 12;
+  const targetDay = Math.min(
+    day,
+    getDaysInMonth(targetYear, normalizedTargetMonthIndex),
+  );
+
+  return formatDateInput(targetYear, normalizedTargetMonthIndex, targetDay);
+}
+
+function getCycleMonthIncrement(cycle: SubscriptionDisplayCycle): number {
+  switch (cycle) {
+    case "Monthly":
+      return 1;
+    case "Quarterly":
+      return 3;
+    case "Yearly":
+      return 12;
+    case "One-time":
+      return 0;
+  }
+}
+
+function isValidDateParts(
+  year: number,
+  monthIndex: number,
+  day: number,
+): boolean {
+  if (!Number.isInteger(year) || !Number.isInteger(monthIndex) || !Number.isInteger(day)) {
+    return false;
+  }
+
+  return (
+    monthIndex >= 0 &&
+    monthIndex <= 11 &&
+    day >= 1 &&
+    day <= getDaysInMonth(year, monthIndex)
+  );
+}
+
+function getDaysInMonth(year: number, monthIndex: number): number {
+  return new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
+}
+
+function formatDateInput(
+  year: number,
+  monthIndex: number,
+  day: number,
+): string {
+  const month = String(monthIndex + 1).padStart(2, "0");
+  const date = String(day).padStart(2, "0");
+
+  return `${year}-${month}-${date}`;
 }

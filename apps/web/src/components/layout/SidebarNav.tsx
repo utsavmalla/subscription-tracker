@@ -7,13 +7,16 @@ import { navItems } from "@/data/dashboard";
 
 export function SidebarNav() {
   const pathname = usePathname() ?? "/";
+  const exactActiveHref = navItems.find((item) => item.href === pathname)?.href;
 
   return (
     <nav className="space-y-1">
       {navItems.map((item) => {
         const isActive =
           item.href === pathname ||
-          (item.href !== "/" && pathname.startsWith(item.href));
+          (!exactActiveHref &&
+            item.href !== "/" &&
+            pathname.startsWith(`${item.href}/`));
 
         return (
           <Link

@@ -1,14 +1,27 @@
+"use client";
+
+import { useState } from "react";
+
 import { StatusBadge } from "@/components/ui";
 import { formatDate } from "@/data/subscriptions";
+import type { SubscriptionStatus } from "@/lib/subscriptions/status";
 import type { SubscriptionRow } from "@/lib/subscriptions/types";
 
-const filters = ["All", "Upcoming", "Overdue", "Active"];
+type PreviewFilter = "All" | SubscriptionStatus;
+
+const filters = ["All", "Upcoming", "Overdue", "Active"] as const satisfies ReadonlyArray<PreviewFilter>;
 
 type Props = {
   previewRows: SubscriptionRow[];
 };
 
 export function SubscriptionPreview({ previewRows }: Props) {
+  const [selectedFilter, setSelectedFilter] = useState<PreviewFilter>("All");
+  const filteredRows =
+    selectedFilter === "All"
+      ? previewRows
+      : previewRows.filter((row) => row.status === selectedFilter);
+
   return (
     <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -24,8 +37,10 @@ export function SubscriptionPreview({ previewRows }: Props) {
           {filters.map((filter) => (
             <button
               key={filter}
+              type="button"
+              onClick={() => setSelectedFilter(filter)}
               className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-semibold ${
-                filter === "All"
+                filter === selectedFilter
                   ? "border-teal-700 bg-teal-700 text-white"
                   : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
               }`}
@@ -36,8 +51,16 @@ export function SubscriptionPreview({ previewRows }: Props) {
         </div>
       </div>
 
-      <DesktopTable previewRows={previewRows} />
-      <MobileCards previewRows={previewRows} />
+      {filteredRows.length > 0 ? (
+        <>
+          <DesktopTable previewRows={filteredRows} />
+          <MobileCards previewRows={filteredRows} />
+        </>
+      ) : (
+        <p className="rounded-md border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-500">
+          No subscriptions match this filter.
+        </p>
+      )}
     </section>
   );
 }
@@ -58,7 +81,7 @@ function DesktopTable({ previewRows }: Props) {
         </thead>
         <tbody className="divide-y divide-slate-200">
           {previewRows.map((row) => (
-            <tr key={row.service} className="bg-white">
+            <tr key={row.id} className="bg-white">
               <td className="px-4 py-4 font-semibold text-slate-950">
                 {row.service}
               </td>
@@ -84,7 +107,7 @@ function MobileCards({ previewRows }: Props) {
     <div className="space-y-3 md:hidden">
       {previewRows.map((row) => (
         <article
-          key={row.service}
+          key={row.id}
           className="rounded-md border border-slate-200 p-4"
         >
           <div className="flex items-start justify-between gap-3">
