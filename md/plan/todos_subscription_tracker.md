@@ -2,8 +2,8 @@
 
 This checklist is derived from:
 - `md/specs/spec_subscription_tracker_mvp.md`
-- `md/ui_layout_subscription_tracker.md`
-- `md/figma_draft_subscription_tracker.md`
+- `md/specs/ui_layout_subscription_tracker.md`
+- `md/specs/figma_draft_subscription_tracker.md`
 - Existing Figma design: https://www.figma.com/design/m5qI2GvjNYMeE1PSxEIMWp
 
 ## Stack transition note
@@ -30,7 +30,7 @@ This checklist is derived from:
 ## Milestone 2: Design handoff and frontend reference
 
 - [x] Use existing Figma design as the visual source of truth.
-- [x] Use `md/figma_draft_subscription_tracker.md` as the implementation reference.
+- [x] Use `md/specs/figma_draft_subscription_tracker.md` as the implementation reference.
 - [x] Confirm core screen coverage: dashboard, subscriptions, add subscription, import/export, alerts, and mobile dashboard.
 - [ ] Extract final frontend tokens for color, typography, spacing, radius, and shadow from the design.
 - [ ] Map reusable UI elements from the design to frontend components.

@@ -1,39 +1,60 @@
 # Subscription Tracker
 
-A web app for tracking recurring and one-time subscriptions, renewal dates, overdue items, expiration dates, and CSV-based spreadsheet migration.
+Subscription Tracker is a full-stack web app for managing recurring and one-time subscriptions. It helps users track renewal dates, expired access, overdue payments, upcoming reminders, and subscription spending without relying on a spreadsheet.
 
-The project is organized as a small TypeScript monorepo:
+The app is built as a TypeScript npm workspace. The active application lives in `apps/web`.
+
+## What The App Does
+
+- Tracks recurring and one-time subscriptions.
+- Shows dashboard metrics for total, active, upcoming, overdue, and expired subscriptions.
+- Supports create, edit, delete, list, search, filter, and sort workflows.
+- Calculates subscription status from renewal and expiration dates.
+- Supports Supabase email magic-link sign-in.
+- Supports guest mode through Supabase anonymous users with a 10-subscription cap.
+- Stores user-owned records in Supabase Postgres through Prisma.
+
+CSV import/export and production scheduled reminders are planned milestones and are not fully complete yet.
+
+## Repository Structure
 
 ```text
 subscription-tracker/
   apps/
-    web/      Next.js App Router frontend and backend layer
-  md/         Product specs, UI notes, and TODO checklist
-  design/     Static design drafts and wireframes
+    web/                  Next.js App Router frontend and backend layer
+      prisma/             Prisma schema and migrations
+      src/
+        actions/          Server Actions for form mutations
+        app/              Routes, layouts, API route handlers
+        components/       Dashboard, layout, subscription, and UI components
+        data/             Temporary/static UI data
+        lib/              App-local contracts and shared helpers
+        server/           Server-only auth, Prisma, and feature services
+  design/                 Static design drafts and wireframes
+  md/
+    agent/                Agent handbook and repository structure docs
+    plan/                 Implementation and deployment planning notes
+    specs/                Product, architecture, and UI specifications
 ```
 
-## Current Status
+## Tech Stack
 
-The app is now a Prisma-backed Next.js workspace connected to Supabase for database and auth:
-
-- Next.js App Router frontend and backend layer lives in `apps/web`.
-- Prisma schema, migrations, and server-only query services are in place for subscriptions and reminder events.
-- Supabase Auth is wired through SSR session helpers, email magic links, and `/auth/callback`.
-- User-owned records are scoped by the Supabase user id stored in `user_id`.
-- Guest mode uses Supabase anonymous users with a 10-subscription cap.
-- The previous temporary `SUBSCRIPTION_TRACKER_DEV_USER_ID` owner fallback is no longer part of the runtime setup.
-
-The implementation plan lives in `md/todos_subscription_tracker.md`.
-
-Future agents should start with `AGENTS.md`, then read the nearest app-specific guide before editing.
+- Next.js App Router 16
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Prisma 7
+- Supabase Auth
+- Supabase Postgres
+- npm workspaces
+- Vercel deployment target
 
 ## Requirements
 
 - Node.js 20 or newer
 - npm
-- PostgreSQL, needed once database models and migrations are added
-
-This repo currently uses npm workspaces.
+- Supabase project with Auth and Postgres enabled
+- PostgreSQL connection strings from Supabase for Prisma runtime and migrations
 
 ## Setup
 
@@ -43,44 +64,85 @@ Install dependencies from the repository root:
 npm install
 ```
 
-Create local environment files from the examples:
+Create local environment files:
 
 ```bash
 copy .env.example .env
 copy apps\web\.env.example apps\web\.env
 ```
 
-On macOS or Linux, use `cp` instead of `copy`.
+On macOS or Linux:
 
-Configure your Supabase project before running auth flows:
+```bash
+cp .env.example .env
+cp apps/web/.env.example apps/web/.env
+```
+
+Update both environment files with your Supabase values.
+
+## Environment Variables
+
+Required values:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+NEXT_PUBLIC_SITE_URL
+SUPABASE_SERVICE_ROLE_KEY
+DATABASE_URL
+DIRECT_URL
+```
+
+Notes:
+
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `NEXT_PUBLIC_SITE_URL` are browser-safe public values.
+- `SUPABASE_SERVICE_ROLE_KEY` is server-only. Never expose it with a `NEXT_PUBLIC_` prefix.
+- `DATABASE_URL` is used by the running app. Use Supabase transaction pooling for serverless runtime traffic.
+- `DIRECT_URL` is used by Prisma migrations and validation. Use the Supabase session pooler or a direct database connection.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` is still supported for older Supabase projects that have not moved to publishable keys.
+
+Prisma CLI commands load `.env`, `apps/web/.env`, and `apps/web/.env.local` when present.
+
+## Supabase Auth Setup
+
+Configure these settings in Supabase before testing auth flows:
 
 - Enable email magic links.
-- Enable Anonymous Sign-Ins if guest mode should be available.
-- Enable manual identity linking if guest users should be able to upgrade by adding an email.
-- Add `http://localhost:3000/auth/callback` to allowed redirect URLs for local development.
-- Add the production `https://YOUR_DOMAIN/auth/callback` redirect URL before deployment.
+- Enable Anonymous Sign-Ins for guest mode.
+- Enable manual identity linking if guests should upgrade by adding an email.
+- Add the local callback URL:
+
+```text
+http://localhost:3000/auth/callback
+```
+
+- Add the production callback URL before deployment:
+
+```text
+https://YOUR_DOMAIN/auth/callback
+```
 
 ## Common Commands
 
-Run the frontend:
+Run the web app locally:
 
 ```bash
 npm run dev:web
 ```
 
-Build the app:
+Build the web app:
 
 ```bash
-npm run build
+npm run build:web
 ```
 
-Lint the app:
+Lint the web app:
 
 ```bash
-npm run lint
+npm run lint:web
 ```
 
-Run checks:
+Run the default project check:
 
 ```bash
 npm run test
@@ -92,38 +154,40 @@ Validate the Prisma schema:
 npm run prisma:validate
 ```
 
-Deploy Prisma migrations to the configured Supabase database:
+Deploy Prisma migrations:
 
 ```bash
 npm run prisma:migrate:deploy
 ```
 
-## Local URLs
+## Local Development
 
-- Web app: `http://localhost:3000`
+Start the app:
 
-## Environment Variables
-
-Root `.env.example`:
-
-```text
-NEXT_PUBLIC_SUPABASE_URL=https://PROJECT_REF.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_PROJECT_KEY
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-SUPABASE_SERVICE_ROLE_KEY=SUPABASE_SERVICE_ROLE_KEY
-DATABASE_URL=postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres?pgbouncer=true
-DIRECT_URL=postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-REGION.pooler.supabase.com:5432/postgres
+```bash
+npm run dev:web
 ```
 
-The same public values are mirrored in `apps/web/.env.example`. Legacy Supabase anon keys are also supported through `NEXT_PUBLIC_SUPABASE_ANON_KEY` when a project has not moved to publishable keys.
+Open:
 
-Supabase Auth must have email magic links enabled. To use guest mode, enable Anonymous Sign-Ins; to upgrade guests by email, enable manual identity linking in the Supabase Auth provider settings.
+```text
+http://localhost:3000
+```
 
-`DATABASE_URL` is used by the running app and should use Supabase transaction pooling for serverless deployments. `DIRECT_URL` is used by Prisma migrations and should use the session pooler or direct connection. Prisma CLI commands run from the repository root load `.env`, `apps/web/.env`, and `apps/web/.env.local` when present.
+Important local routes:
+
+- `/` - dashboard
+- `/login` - magic-link and guest login
+- `/subscriptions` - subscription list
+- `/subscriptions/new` - create subscription
+- `/subscriptions/[id]` - subscription detail
+- `/subscriptions/[id]/edit` - edit subscription
 
 ## Deployment
 
-Deploy `apps/web` as the Vercel project root. Vercel should use the Next.js framework preset and the `apps/web/vercel.json` defaults:
+Deploy `apps/web` as the Vercel project root.
+
+Use these Vercel settings:
 
 ```text
 Framework Preset: Next.js
@@ -132,42 +196,31 @@ Build Command: npm run build
 Development Command: npm run dev
 ```
 
-Set these production environment variables in Vercel:
+Set the production environment variables listed above in Vercel. Use the Supabase transaction pooler for `DATABASE_URL` and the session pooler or direct connection for `DIRECT_URL`.
 
-```text
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-NEXT_PUBLIC_SITE_URL
-SUPABASE_SERVICE_ROLE_KEY
-DATABASE_URL
-DIRECT_URL
-```
+Before the first production smoke test:
 
-Use the Supabase transaction pooler for `DATABASE_URL` and the session pooler or direct connection for `DIRECT_URL`. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only; never expose it with a `NEXT_PUBLIC_` prefix.
+1. Configure the production Supabase Auth callback URL.
+2. Run `npm run prisma:validate`.
+3. Run `npm run prisma:migrate:deploy` with the production `DIRECT_URL`.
 
-Before the first production deployment, configure Supabase Auth with email magic links, Anonymous Sign-Ins, manual identity linking, and the production callback URL:
+The `/api/reminders/refresh` endpoint is session-user protected and should not be connected to production cron until the scheduled-job milestone is complete.
 
-```text
-https://YOUR_DOMAIN/auth/callback
-```
+## Documentation
 
-From the repository root, verify and apply migrations against production after loading the production `DIRECT_URL`:
+- `apps/web/README.md` - web app quickstart
+- `apps/web/doc/TECHNICAL_GUIDE.md` - technical guide for setup, stack, architecture, and flows
+- `apps/web/doc/PRISMA_GUIDE.md` - focused guide to Prisma usage in this project
+- `md/agent/README.md` - agent handbook and documentation map
+- `md/agent/project_structure.md` - repository layout and file placement rules
+- `md/plan/deployment_notes_subscription_tracker.md` - deployment notes and known issues
+- `md/plan/todos_subscription_tracker.md` - implementation checklist
+- `md/specs/spec_subscription_tracker_mvp.md` - product and architecture specification
+- `md/specs/ui_layout_subscription_tracker.md` - UI layout reference
+- `md/specs/figma_draft_subscription_tracker.md` - Figma/design draft reference
 
-```bash
-npm run prisma:validate
-npm run prisma:migrate:deploy
-```
+## Current Status
 
-Scheduled status refresh is intentionally not part of this deployment pass. `/api/reminders/refresh` is still session-user protected and should not be wired to a production scheduler until the Milestone 11 scheduled-job work is completed.
+The app currently includes the dashboard, subscription management pages, Prisma-backed Supabase data access, Supabase Auth, email magic links, and capped guest mode.
 
-## Project Docs
-
-- `md/agent/project_structure.md`: Repository layout and file placement guide
-- `md/specs/spec_subscription_tracker_mvp.md`: Product and architecture specification
-- `md/ui_layout_subscription_tracker.md`: UI layout plan
-- `md/figma_draft_subscription_tracker.md`: Figma draft plan
-- `md/plan/todos_subscription_tracker.md`: Implementation checklist
-
-## Notes
-
-The app is not feature-complete yet. Current work includes the dashboard and subscription management UI, Prisma-backed Supabase data access, and Supabase Auth with email magic links plus capped guest mode. CSV import/export, alerts UI polish, and scheduled status refresh remain pending milestones.
+Remaining planned work includes CSV workflows, alert UI polish, scheduled status refresh, and optional external notifications.

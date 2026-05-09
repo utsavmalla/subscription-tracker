@@ -1,37 +1,24 @@
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This version has breaking changes. Read the relevant guide in `node_modules/next/dist/docs/` before writing Next.js code, and heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
 # Web Agent Guide
 
-This app is the Next.js frontend for Subscription Tracker. Keep the frontend organized by file type under `apps/web/src`.
+This app is the Next.js frontend and backend layer for Subscription Tracker. Read the root `AGENTS.md` and `md/agent/README.md` first, then use this file for web-specific rules.
 
-## Source Layout
+## Source Placement
 
-```text
-apps/web/src/
-  app/                 Next App Router routes, layouts, metadata, global CSS
-  components/          Reusable UI and screen sections
-    dashboard/
-    layout/
-    ui/
-  data/                Temporary mock/static frontend data
-  hooks/               React hooks
-  lib/                 Frontend and server-safe helpers, formatting, domain utilities
-  types/               Frontend-only types
-```
-
-## Placement Rules
-
-- `app/page.tsx` and nested route `page.tsx` files should stay thin and render screen components.
-- Keep route layouts and global CSS in `app/`.
-- Put dashboard screen composition and dashboard-only sections in `components/dashboard`.
-- Put app shells, nav shells, and page layout wrappers in `components/layout`.
-- Put reusable primitives such as badges, panels, buttons, and inputs in `components/ui`.
-- Put temporary mock/static data in `src/data`, not inside component folders.
-- Put frontend-only types in `src/types`. Put app-local domain helpers and contracts in `src/lib` until another package boundary exists.
+- Keep route files in `src/app`; route `page.tsx` files should stay thin and render screen components.
+- Put dashboard composition in `src/components/dashboard`.
+- Put app shells and layout wrappers in `src/components/layout`.
+- Put reusable primitives in `src/components/ui`.
+- Put temporary mock/static frontend data in `src/data`.
+- Put React hooks in `src/hooks`.
+- Put frontend helpers and app-local domain contracts in `src/lib`.
+- Put frontend-only types in `src/types`.
+- Put server-only auth, Prisma, and feature services in `src/server`, `src/actions`, or `src/app/api`.
 
 ## Supabase Auth and Data Access
 
@@ -45,4 +32,5 @@ apps/web/src/
 ## Checks
 
 - Run `npm run lint:web` after frontend code changes.
-- Run `npm run build:web` after structural, import, or route changes.
+- Run `npm run build:web` after structural, import, route, Prisma, or Next.js config changes.
+

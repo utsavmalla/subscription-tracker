@@ -1,59 +1,82 @@
 # Subscription Tracker Web
 
-Next.js App Router app for the Subscription Tracker frontend and backend layer.
+`apps/web` is the deployable Next.js app for Subscription Tracker. It owns the browser UI and the app-local backend layer for auth, subscriptions, dashboard data, and reminder status refresh.
 
-## Role
+For the deeper architecture walkthrough, read [`doc/TECHNICAL_GUIDE.md`](./doc/TECHNICAL_GUIDE.md). For a focused explanation of Prisma in this app, read [`doc/PRISMA_GUIDE.md`](./doc/PRISMA_GUIDE.md).
 
-This app owns the browser experience:
+## App Responsibilities
 
-- Dashboard pages
-- Subscription list and detail views
-- Create and edit subscription forms
-- CSV import and export screens
-- Alert and reminder views
-- Responsive desktop and mobile UI
+- Dashboard summary and attention panels.
+- Subscription list, detail, create, edit, delete, and mark-done flows.
+- Search, filter, and sort UI for subscriptions.
+- Supabase Auth login, callback handling, and anonymous guest sessions.
+- Server Actions for trusted form mutations.
+- Route Handlers for dashboard, subscription, and reminder HTTP boundaries.
+- Prisma services for user-scoped Supabase Postgres access.
 
-It will also own the MVP backend layer through Server Actions, Route Handlers, and server-only Prisma services.
+CSV import/export and production scheduled reminders are planned but not complete.
 
 ## Tech Stack
 
-- Next.js App Router
-- React
+- Next.js App Router 16
+- React 19
 - TypeScript
-- Tailwind CSS
+- Tailwind CSS 4
+- Prisma 7
+- Supabase Auth
+- Supabase Postgres
 - ESLint
 
 ## Setup
 
-Install dependencies from the repository root:
+Run setup from the repository root.
 
 ```bash
 npm install
 ```
 
-Create the web environment file:
+Create environment files:
 
 ```bash
+copy .env.example .env
 copy apps\web\.env.example apps\web\.env
 ```
 
 On macOS or Linux:
 
 ```bash
+cp .env.example .env
 cp apps/web/.env.example apps/web/.env
 ```
 
+Fill in the Supabase and database values in both files.
+
 ## Environment Variables
 
+Required values:
+
 ```text
-NEXT_PUBLIC_SUPABASE_URL=https://PROJECT_REF.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_PROJECT_KEY
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+NEXT_PUBLIC_SITE_URL
+SUPABASE_SERVICE_ROLE_KEY
+DATABASE_URL
+DIRECT_URL
 ```
 
-Legacy Supabase anon keys are also supported through `NEXT_PUBLIC_SUPABASE_ANON_KEY` when needed. Server-only Supabase and database credentials belong in the root/local deployment environment, not in public browser variables.
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` is also supported for older Supabase projects.
 
-Supabase Auth must have email magic links enabled. Guest mode requires Anonymous Sign-Ins, and guest upgrade requires manual identity linking in the Supabase Auth provider settings.
+Use `DATABASE_URL` for runtime app traffic, preferably through Supabase transaction pooling. Use `DIRECT_URL` for Prisma validation and migrations, preferably through the session pooler or a direct database connection.
+
+## Supabase Setup
+
+Before running auth flows:
+
+- Enable email magic links.
+- Enable Anonymous Sign-Ins for guest mode.
+- Enable manual identity linking for guest upgrade.
+- Add `http://localhost:3000/auth/callback` to local redirect URLs.
+- Add `https://YOUR_DOMAIN/auth/callback` before production smoke testing.
 
 ## Commands
 
@@ -61,13 +84,8 @@ From the repository root:
 
 ```bash
 npm run dev:web
-npm run build:web
 npm run lint:web
-```
-
-Prisma commands should be run from the repository root so they use `prisma.config.ts`:
-
-```bash
+npm run build:web
 npm run prisma:validate
 npm run prisma:migrate:deploy
 ```
@@ -76,13 +94,14 @@ From `apps/web`:
 
 ```bash
 npm run dev
-npm run build
 npm run lint
+npm run build
+npm run start
 ```
 
 ## Local Development
 
-Start the frontend:
+Start the app:
 
 ```bash
 npm run dev:web
@@ -94,33 +113,38 @@ Open:
 http://localhost:3000
 ```
 
-## Deployment
+Main routes:
 
-Create the Vercel project with `apps/web` as the Root Directory. The local `vercel.json` sets the Next.js framework preset and app-level build/dev commands.
-
-Production environment variables required by this app:
-
-```text
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-NEXT_PUBLIC_SITE_URL
-SUPABASE_SERVICE_ROLE_KEY
-DATABASE_URL
-DIRECT_URL
-```
-
-Use Supabase transaction pooling for runtime `DATABASE_URL`, and use the session pooler or direct connection for `DIRECT_URL` migrations. Add the production `/auth/callback` URL to Supabase Auth redirect URLs before smoke testing sign-in.
-
-The scheduled refresh endpoint is not deployment-ready for cron yet; keep Supabase scheduled Edge Function setup in Milestone 11.
+- `/` - dashboard
+- `/login` - sign-in and guest entry
+- `/auth/callback` - Supabase auth callback
+- `/subscriptions` - subscription list
+- `/subscriptions/new` - create subscription
+- `/subscriptions/[id]` - subscription detail
+- `/subscriptions/[id]/edit` - edit subscription
 
 ## Important Files
 
-- `src/app/page.tsx`: Home page route
-- `src/app/layout.tsx`: Root app layout
-- `src/app/globals.css`: Global Tailwind styles
-- `next.config.ts`: Next.js config
-- `eslint.config.mjs`: ESLint config
+- `src/app/page.tsx` - dashboard route entry
+- `src/app/login/page.tsx` - login and guest entry UI
+- `src/app/auth/callback/route.ts` - Supabase callback handler
+- `src/actions/subscriptions.ts` - subscription form mutations
+- `src/server/auth/currentUser.ts` - current-user helpers
+- `src/server/subscriptions/service.ts` - subscription query and mutation service
+- `src/lib/subscriptions/status.ts` - status calculation logic
+- `prisma/schema.prisma` - database schema
 
-## Implementation Notes
+## Deployment
 
-The UI should follow the product and layout docs in the root `md/` folder. The MVP should prioritize dashboard visibility, subscription management, search/filter/sort, and CSV workflows before decorative polish.
+Deploy this folder as the Vercel project root:
+
+```text
+Root Directory: apps/web
+Framework Preset: Next.js
+Build Command: npm run build
+Development Command: npm run dev
+```
+
+Set all required environment variables in Vercel. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only.
+
+The `/api/reminders/refresh` endpoint is not ready for unauthenticated production cron. Keep scheduled-job setup in the planned milestone until the endpoint has the intended production protection.
