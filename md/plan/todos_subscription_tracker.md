@@ -150,10 +150,10 @@ This checklist is derived from:
 
 ## Milestone 11: Reminders and scheduled jobs
 
-- [ ] Add Supabase scheduled Edge Function for daily status refresh.
-- [ ] Connect scheduled function to the protected Next.js reminder/status refresh boundary or shared refresh service.
-- [ ] Make reminder generation idempotent.
-- [ ] Keep MVP notifications in-app only.
+- [x] Add Supabase scheduled Edge Function for daily status refresh.
+- [x] Connect scheduled function to the protected Next.js reminder/status refresh boundary or shared refresh service.
+- [x] Make reminder generation idempotent.
+- [x] Keep MVP notifications in-app only.
 - [ ] Add later Resend email reminder integration.
 - [ ] Add later Slack webhook reminder integration.
 

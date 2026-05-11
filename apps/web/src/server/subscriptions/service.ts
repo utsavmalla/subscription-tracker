@@ -1,4 +1,4 @@
-import { Prisma, type Subscription } from "@prisma/client";
+import { Prisma, type ReminderType, type Subscription } from "@prisma/client";
 import {
   calculateSubscriptionStatus,
   type AlertState,
@@ -28,6 +28,14 @@ import { validateSubscriptionInput } from "./validation";
 const defaultSortField: SubscriptionSortField = "nextRenewal";
 const defaultSortDirection: SortDirection = "asc";
 const millisecondsPerDay = 24 * 60 * 60 * 1000;
+const reminderAlertStates = new Set<AlertState>(["Upcoming", "DueToday", "Overdue"]);
+
+type RefreshSummary = {
+  usersChecked: number;
+  subscriptionsChecked: number;
+  subscriptionsUpdated: number;
+  remindersCreated: number;
+};
 
 export async function countSubscriptions(userId: string): Promise<number> {
   return prisma.subscription.count({ where: { userId } });
@@ -200,7 +208,25 @@ export async function markSubscriptionDone(
 
 export async function refreshSubscriptionStatuses(userId: string) {
   const subscriptions = await prisma.subscription.findMany({ where: { userId } });
-  let updated = 0;
+
+  return refreshSubscriptionBatch(subscriptions, 1);
+}
+
+export async function refreshAllSubscriptionStatuses() {
+  const subscriptions = await prisma.subscription.findMany({
+    orderBy: [{ userId: "asc" }, { nextRenewalDate: "asc" }, { expirationDate: "asc" }],
+  });
+  const usersChecked = new Set(subscriptions.map((subscription) => subscription.userId)).size;
+
+  return refreshSubscriptionBatch(subscriptions, usersChecked);
+}
+
+async function refreshSubscriptionBatch(
+  subscriptions: Subscription[],
+  usersChecked: number,
+): Promise<RefreshSummary> {
+  let subscriptionsUpdated = 0;
+  let remindersCreated = 0;
 
   for (const subscription of subscriptions) {
     const status = calculateSubscriptionStatus({
@@ -212,14 +238,28 @@ export async function refreshSubscriptionStatuses(userId: string) {
 
     if (status.status !== subscription.status || status.alertState !== subscription.alertState) {
       await prisma.subscription.update({
-        where: { id_userId: { id: subscription.id, userId } },
+        where: { id_userId: { id: subscription.id, userId: subscription.userId } },
         data: status,
       });
-      updated += 1;
+      subscriptionsUpdated += 1;
+    }
+
+    const reminder = buildReminderEvent(subscription, status.alertState);
+    if (reminder) {
+      const result = await prisma.reminderEvent.createMany({
+        data: [reminder],
+        skipDuplicates: true,
+      });
+      remindersCreated += result.count;
     }
   }
 
-  return { checked: subscriptions.length, updated };
+  return {
+    usersChecked,
+    subscriptionsChecked: subscriptions.length,
+    subscriptionsUpdated,
+    remindersCreated,
+  };
 }
 
 export async function getDashboardSummary(userId: string): Promise<DashboardSummary> {
@@ -429,6 +469,40 @@ function formatDaysOverdue(value: Date | null): string {
 
 function startOfUtcDay(value: Date): Date {
   return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()));
+}
+
+function buildReminderEvent(
+  subscription: Subscription,
+  alertState: AlertState,
+): Prisma.ReminderEventCreateManyInput | null {
+  const reminderType = toReminderType(alertState);
+  if (!reminderType) {
+    return null;
+  }
+
+  const scheduledFor =
+    subscription.renewalCycle === "OneTime"
+      ? subscription.expirationDate
+      : subscription.nextRenewalDate;
+
+  if (!scheduledFor) {
+    return null;
+  }
+
+  return {
+    userId: subscription.userId,
+    subscriptionId: subscription.id,
+    reminderType,
+    scheduledFor: startOfUtcDay(scheduledFor),
+  };
+}
+
+function toReminderType(alertState: AlertState): ReminderType | null {
+  if (!reminderAlertStates.has(alertState)) {
+    return null;
+  }
+
+  return alertState as ReminderType;
 }
 
 function sumUsd(subscriptions: Subscription[]): number {

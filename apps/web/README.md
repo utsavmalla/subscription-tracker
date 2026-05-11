@@ -14,7 +14,7 @@ For the deeper architecture walkthrough, read [`doc/TECHNICAL_GUIDE.md`](./doc/T
 - Route Handlers for dashboard, subscription, and reminder HTTP boundaries.
 - Prisma services for user-scoped Supabase Postgres access.
 
-CSV import/export and production scheduled reminders are planned but not complete.
+CSV import/export is planned but not complete.
 
 ## Tech Stack
 
@@ -60,13 +60,14 @@ NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SITE_URL
 SUPABASE_SERVICE_ROLE_KEY
+REMINDER_REFRESH_SECRET
 DATABASE_URL
 DIRECT_URL
 ```
 
 `NEXT_PUBLIC_SUPABASE_ANON_KEY` is also supported for older Supabase projects.
 
-Use `DATABASE_URL` for runtime app traffic, preferably through Supabase transaction pooling. Use `DIRECT_URL` for Prisma validation and migrations, preferably through the session pooler or a direct database connection.
+Use `DATABASE_URL` for runtime app traffic, preferably through Supabase transaction pooling. Use `DIRECT_URL` for Prisma validation and migrations, preferably through the session pooler or a direct database connection. `REMINDER_REFRESH_SECRET` is server-only and must match the secret configured for the Supabase scheduled Edge Function.
 
 ## Supabase Setup
 
@@ -145,6 +146,11 @@ Build Command: npm run build
 Development Command: npm run dev
 ```
 
-Set all required environment variables in Vercel. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only.
+Set all required environment variables in Vercel. Keep `SUPABASE_SERVICE_ROLE_KEY` and `REMINDER_REFRESH_SECRET` server-only.
 
-The `/api/reminders/refresh` endpoint is not ready for unauthenticated production cron. Keep scheduled-job setup in the planned milestone until the endpoint has the intended production protection.
+The `/api/reminders/refresh` endpoint supports two modes:
+
+- Authenticated app sessions refresh only the current user's subscriptions.
+- `Authorization: Bearer <REMINDER_REFRESH_SECRET>` refreshes all users for the scheduled job.
+
+Deploy `supabase/functions/daily-reminder-refresh`, set `APP_REFRESH_URL=https://YOUR_DOMAIN/api/reminders/refresh` and `REMINDER_REFRESH_SECRET` as Supabase Edge Function secrets, then schedule it with Supabase `pg_cron` and `pg_net`. Store the function URL and authorization key in Supabase Vault for the scheduled SQL.

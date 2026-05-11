@@ -61,6 +61,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://PROJECT_REF.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_PROJECT_KEY
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 SUPABASE_SERVICE_ROLE_KEY=SUPABASE_SERVICE_ROLE_KEY
+REMINDER_REFRESH_SECRET=change-me-to-a-long-random-secret
 DATABASE_URL=postgresql://...
 DIRECT_URL=postgresql://...
 ```
@@ -201,12 +202,14 @@ Guest mode uses Supabase anonymous users. Guest records are still persisted and 
 
 ### Status Refresh Flow
 
-1. `/api/reminders/refresh` requires a session user.
-2. The route calls the subscription service for the current user.
-3. Each subscription status is recalculated.
-4. Changed records are updated in Prisma.
+1. `/api/reminders/refresh` accepts either a Supabase session user or `Authorization: Bearer <REMINDER_REFRESH_SECRET>`.
+2. Session calls refresh only the current user's subscriptions.
+3. Bearer-secret calls refresh all subscription owners for the scheduled job.
+4. Each subscription status is recalculated.
+5. Changed records are updated in Prisma.
+6. `ReminderEvent` rows are created for `Upcoming`, `DueToday`, and `Overdue` alert states.
 
-This endpoint is not ready for production cron yet because it is session-user protected. Scheduled production refresh is a planned milestone.
+Reminder generation is idempotent through a unique database constraint on `userId`, `subscriptionId`, `reminderType`, and `scheduledFor`. `scheduledFor` is stored as the UTC start of the renewal or expiration day. `Expired` one-time subscriptions remain represented by `Subscription.alertState` only.
 
 ## API Boundaries
 
@@ -269,16 +272,25 @@ NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SITE_URL
 SUPABASE_SERVICE_ROLE_KEY
+REMINDER_REFRESH_SECRET
 DATABASE_URL
 DIRECT_URL
 ```
 
 Before testing production sign-in, add the production callback URL in Supabase Auth.
 
+Scheduled reminder refresh uses `supabase/functions/daily-reminder-refresh`. Configure these Supabase Edge Function secrets:
+
+```text
+APP_REFRESH_URL=https://YOUR_DOMAIN/api/reminders/refresh
+REMINDER_REFRESH_SECRET=the-same-secret-configured-on-the-web-app
+```
+
+Deploy the function, then schedule it from Supabase Postgres with `pg_cron` and `pg_net`. Store the function URL and authorization key in Supabase Vault for the scheduled SQL. A daily run shortly after midnight UTC keeps the app's UTC day-based status logic predictable.
+
 ## Current Limits And Planned Work
 
 - CSV import/export is part of the product plan but is not complete.
-- Production scheduled refresh is not wired yet.
-- `/api/reminders/refresh` should remain protected until the scheduled-job milestone defines the production trigger.
+- MVP in-app reminder generation and daily scheduled refresh are implemented.
 - Alert UI polish and optional email or Slack reminders are later milestones.
 - The app currently keeps app-local contracts in `apps/web`; shared packages should only be introduced when another app or package boundary actually needs them.

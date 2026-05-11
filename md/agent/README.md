@@ -58,5 +58,4 @@ Detailed placement rules live in `md/agent/project_structure.md`.
 - Use Supabase session pooler or direct connection for migration/admin `DIRECT_URL`.
 - Keep `SUPABASE_SERVICE_ROLE_KEY` server-only.
 - Configure Supabase Auth redirect URLs before smoke testing production sign-in.
-- Do not wire `/api/reminders/refresh` to production cron until the scheduled-job milestone is complete.
-
+- Wire production cron through the Supabase `daily-reminder-refresh` Edge Function and the `REMINDER_REFRESH_SECRET` bearer path.

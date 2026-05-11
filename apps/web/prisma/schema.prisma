@@ -82,6 +82,7 @@ model ReminderEvent {
   createdAt      DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
   subscription   Subscription        @relation(fields: [subscriptionId, userId], references: [id, userId], onDelete: Cascade)
 
+  @@unique([userId, subscriptionId, reminderType, scheduledFor], map: "reminder_events_unique_daily_subscription_type")
   @@index([userId], map: "reminder_events_user_id_idx")
   @@index([subscriptionId], map: "reminder_events_subscription_id_idx")
   @@index([subscriptionId, userId], map: "reminder_events_subscription_owner_idx")

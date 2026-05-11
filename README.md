@@ -13,8 +13,9 @@ The app is built as a TypeScript npm workspace. The active application lives in 
 - Supports Supabase email magic-link sign-in.
 - Supports guest mode through Supabase anonymous users with a 10-subscription cap.
 - Stores user-owned records in Supabase Postgres through Prisma.
+- Supports daily in-app reminder/status refresh through a protected Supabase scheduled Edge Function.
 
-CSV import/export and production scheduled reminders are planned milestones and are not fully complete yet.
+CSV import/export remains a planned milestone.
 
 ## Repository Structure
 
@@ -89,6 +90,7 @@ NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SITE_URL
 SUPABASE_SERVICE_ROLE_KEY
+REMINDER_REFRESH_SECRET
 DATABASE_URL
 DIRECT_URL
 ```
@@ -97,6 +99,7 @@ Notes:
 
 - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `NEXT_PUBLIC_SITE_URL` are browser-safe public values.
 - `SUPABASE_SERVICE_ROLE_KEY` is server-only. Never expose it with a `NEXT_PUBLIC_` prefix.
+- `REMINDER_REFRESH_SECRET` is server-only and authorizes the scheduled reminder refresh job.
 - `DATABASE_URL` is used by the running app. Use Supabase transaction pooling for serverless runtime traffic.
 - `DIRECT_URL` is used by Prisma migrations and validation. Use the Supabase session pooler or a direct database connection.
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` is still supported for older Supabase projects that have not moved to publishable keys.
@@ -204,7 +207,14 @@ Before the first production smoke test:
 2. Run `npm run prisma:validate`.
 3. Run `npm run prisma:migrate:deploy` with the production `DIRECT_URL`.
 
-The `/api/reminders/refresh` endpoint is session-user protected and should not be connected to production cron until the scheduled-job milestone is complete.
+For scheduled reminders, deploy `supabase/functions/daily-reminder-refresh` and set these Supabase Edge Function secrets:
+
+```text
+APP_REFRESH_URL=https://YOUR_DOMAIN/api/reminders/refresh
+REMINDER_REFRESH_SECRET=the-same-secret-configured-on-the-web-app
+```
+
+Schedule the function from Supabase Postgres with `pg_cron` and `pg_net`, preferably shortly after midnight UTC. Store the Supabase function URL and authorization key in Supabase Vault for the scheduled SQL.
 
 ## Documentation
 
@@ -221,6 +231,6 @@ The `/api/reminders/refresh` endpoint is session-user protected and should not b
 
 ## Current Status
 
-The app currently includes the dashboard, subscription management pages, Prisma-backed Supabase data access, Supabase Auth, email magic links, and capped guest mode.
+The app currently includes the dashboard, subscription management pages, Prisma-backed Supabase data access, Supabase Auth, email magic links, capped guest mode, and daily in-app reminder/status refresh.
 
-Remaining planned work includes CSV workflows, alert UI polish, scheduled status refresh, and optional external notifications.
+Remaining planned work includes CSV workflows, alert UI polish, and optional external notifications.

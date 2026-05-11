@@ -204,3 +204,46 @@ Deployment ID: dpl_91mXREaSiNnnLHJHVdMauVUp5E7C
 4. Confirm subscriptions load without the Prisma database connection error.
 5. Create, edit, mark done, and delete a test subscription.
 
+## Scheduled reminder refresh setup
+
+The app now supports a production-safe scheduled refresh path:
+
+- Vercel needs `REMINDER_REFRESH_SECRET` as a server-only environment variable.
+- Supabase Edge Function secrets need:
+  - `APP_REFRESH_URL=https://subscription-tracker-nine-ashy.vercel.app/api/reminders/refresh`
+  - `REMINDER_REFRESH_SECRET` with the same value used by Vercel.
+- Deploy `supabase/functions/daily-reminder-refresh`.
+- Schedule the Edge Function with Supabase `pg_cron` and `pg_net`, preferably shortly after midnight UTC.
+- Store the function URL and authorization key in Supabase Vault for the scheduled SQL.
+
+Example schedule SQL:
+
+```sql
+select vault.create_secret(
+  'https://qylifipryowgdqryvbsj.supabase.co/functions/v1/daily-reminder-refresh',
+  'daily_reminder_refresh_url'
+);
+
+select vault.create_secret(
+  'SUPABASE_ANON_OR_FUNCTION_AUTH_KEY',
+  'daily_reminder_refresh_auth_key'
+);
+
+select cron.schedule(
+  'daily-reminder-refresh',
+  '5 0 * * *',
+  $$
+  select net.http_post(
+    url := (select decrypted_secret from vault.decrypted_secrets where name = 'daily_reminder_refresh_url'),
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer ' || (
+        select decrypted_secret from vault.decrypted_secrets
+        where name = 'daily_reminder_refresh_auth_key'
+      )
+    ),
+    body := '{}'::jsonb
+  ) as request_id;
+  $$
+);
+```
