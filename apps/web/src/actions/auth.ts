@@ -59,10 +59,15 @@ export async function signOutAction() {
 
 async function getAuthCallbackUrl() {
   const requestHeaders = await headers();
-  const origin =
-    requestHeaders.get("origin") ??
+  const origin = normalizeOrigin(
     process.env.NEXT_PUBLIC_SITE_URL ??
-    "http://localhost:3000";
+      requestHeaders.get("origin") ??
+      "http://localhost:3000",
+  );
 
   return `${origin}/auth/callback`;
+}
+
+function normalizeOrigin(value: string) {
+  return value.trim().replace(/\/+$/, "");
 }

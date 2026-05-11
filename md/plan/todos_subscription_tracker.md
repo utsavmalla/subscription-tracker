@@ -78,11 +78,11 @@ This checklist is derived from:
 
 ## Milestone 6: Alerts and reminders UI
 
-- [ ] Highlight upcoming, due today, overdue, and expired records in the UI.
-- [ ] Create alerts page.
-- [ ] Add alert tabs for upcoming, due today, overdue, expired, and completed.
-- [ ] Add quick actions from alert rows.
-- [ ] Support marking alert tasks as done.
+- [x] Highlight upcoming, due today, overdue, and expired records in the UI.
+- [x] Create alerts page.
+- [x] Add alert tabs for upcoming, due today, overdue, expired, and completed.
+- [x] Add quick actions from alert rows.
+- [x] Support marking alert tasks as done.
 
 ## Milestone 7: Settings and polish
 

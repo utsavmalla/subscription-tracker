@@ -4,6 +4,11 @@ import { useState } from "react";
 
 import { StatusBadge } from "@/components/ui";
 import { formatDate } from "@/data/subscriptions";
+import {
+  getAlertAccentClass,
+  getAlertContainerClass,
+  getAlertTableRowClass,
+} from "@/lib/subscriptions/alertStyles";
 import type { SubscriptionStatus } from "@/lib/subscriptions/status";
 import type { SubscriptionRow } from "@/lib/subscriptions/types";
 
@@ -81,7 +86,7 @@ function DesktopTable({ previewRows }: Props) {
         </thead>
         <tbody className="divide-y divide-slate-200">
           {previewRows.map((row) => (
-            <tr key={row.id} className="bg-white">
+            <tr key={row.id} className={getAlertTableRowClass(row.status)}>
               <td className="px-4 py-4 font-semibold text-slate-950">
                 {row.service}
               </td>
@@ -108,7 +113,9 @@ function MobileCards({ previewRows }: Props) {
       {previewRows.map((row) => (
         <article
           key={row.id}
-          className="rounded-md border border-slate-200 p-4"
+          className={`rounded-md border border-l-4 p-4 ${getAlertAccentClass(
+            row.status,
+          )} ${getAlertContainerClass(row.status)}`}
         >
           <div className="flex items-start justify-between gap-3">
             <div>

@@ -97,6 +97,7 @@ async function enforceGuestCreateLimit(
 function revalidateSubscriptionPaths(id?: string) {
   revalidatePath("/");
   revalidatePath("/subscriptions");
+  revalidatePath("/alerts");
 
   if (id) {
     revalidatePath(`/subscriptions/${id}`);

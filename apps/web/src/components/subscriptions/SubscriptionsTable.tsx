@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { StatusBadge } from "@/components/ui";
 import { formatDate } from "@/data/subscriptions";
+import { getAlertTableRowClass } from "@/lib/subscriptions/alertStyles";
 import type { SubscriptionRow } from "@/lib/subscriptions/types";
 
 export type SortField = "service" | "amount" | "nextRenewal" | "expiration" | "updated";
@@ -69,7 +70,7 @@ export function SubscriptionsTable({
         </thead>
         <tbody className="divide-y divide-slate-200 bg-white">
           {rows.map((row) => (
-            <tr key={row.id}>
+            <tr key={row.id} className={getAlertTableRowClass(row.status)}>
               <td className="px-4 py-4 font-semibold text-slate-950">
                 {row.service}
               </td>

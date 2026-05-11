@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { StatusBadge } from "@/components/ui";
 import { formatDate } from "@/data/subscriptions";
+import {
+  getAlertAccentClass,
+  getAlertContainerClass,
+} from "@/lib/subscriptions/alertStyles";
 import type { SubscriptionRow } from "@/lib/subscriptions/types";
 
 type Props = {
@@ -15,7 +19,9 @@ export function SubscriptionCards({ rows, onMarkDone, onDelete }: Props) {
       {rows.map((row) => (
         <article
           key={row.id}
-          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+          className={`rounded-2xl border border-l-4 p-4 shadow-sm ${getAlertAccentClass(
+            row.status,
+          )} ${getAlertContainerClass(row.status)}`}
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
