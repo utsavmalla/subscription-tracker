@@ -1,2 +1,2 @@
 [functions.daily-reminder-refresh]
-verify_jwt = true
+verify_jwt = false
