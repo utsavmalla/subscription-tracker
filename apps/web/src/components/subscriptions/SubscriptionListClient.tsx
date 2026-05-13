@@ -11,6 +11,7 @@ import {
   type SortField,
 } from "@/components/subscriptions/SubscriptionsTable";
 import { SubscriptionCards } from "@/components/subscriptions/SubscriptionCards";
+import { EmptyState } from "@/components/ui";
 import type { SubscriptionRow } from "@/lib/subscriptions/types";
 
 type Props = {
@@ -39,6 +40,7 @@ export function SubscriptionListClient({ initialRows }: Props) {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState("");
+  const [toastTone, setToastTone] = useState<"success" | "error">("success");
   const [today] = useState(() => Date.now());
 
   const filteredRows = useMemo(() => {
@@ -128,6 +130,7 @@ export function SubscriptionListClient({ initialRows }: Props) {
 
     const nextDone = !row.done;
     const result = await markSubscriptionDoneAction(id, nextDone);
+    setToastTone(result.ok ? "success" : "error");
     setToastMessage(result.message);
 
     if (result.ok) {
@@ -156,6 +159,7 @@ export function SubscriptionListClient({ initialRows }: Props) {
     }
 
     const result = await deleteSubscriptionAction(deleteTargetId);
+    setToastTone(result.ok ? "success" : "error");
     setToastMessage(result.message);
 
     if (result.ok) {
@@ -245,15 +249,27 @@ export function SubscriptionListClient({ initialRows }: Props) {
           />
 
           {filteredRows.length === 0 && (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-10 text-center text-sm text-slate-600">
-              No subscriptions match your current filters. Try clearing filters or adjusting the search term.
-            </div>
+            <EmptyState
+              title={rows.length === 0 ? "No subscriptions yet" : "No matching subscriptions"}
+              description={
+                rows.length === 0
+                  ? "Add your first subscription to start tracking renewal dates and alerts."
+                  : "Clear filters or adjust your search term to see more records."
+              }
+              actionLabel={rows.length === 0 ? "Add subscription" : "Clear filters"}
+              actionHref={rows.length === 0 ? "/subscriptions/new" : undefined}
+              onAction={rows.length === 0 ? undefined : clearFilters}
+            />
           )}
         </section>
       </div>
 
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-20 rounded-2xl bg-slate-950 px-5 py-3 text-sm text-white shadow-xl sm:right-8">
+        <div
+          className={`fixed bottom-6 right-6 z-20 rounded-2xl px-5 py-3 text-sm text-white shadow-xl sm:right-8 ${
+            toastTone === "error" ? "bg-rose-700" : "bg-slate-950"
+          }`}
+        >
           {toastMessage}
           <button
             type="button"

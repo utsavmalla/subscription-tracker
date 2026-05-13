@@ -1,4 +1,4 @@
-import { Panel } from "@/components/ui";
+import { EmptyState, Panel } from "@/components/ui";
 import type { RecentUpdateItem } from "@/lib/subscriptions/types";
 
 type Props = {
@@ -51,9 +51,10 @@ export function SpendAndUpdates({
             </div>
           ))}
           {recentUpdates.length === 0 && (
-            <p className="rounded-md border border-slate-200 p-3 text-sm text-slate-500">
-              No recent updates.
-            </p>
+            <EmptyState
+              title="No recent updates"
+              description="Create or edit a subscription to see activity here."
+            />
           )}
         </div>
       </Panel>

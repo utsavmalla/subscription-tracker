@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { markSubscriptionDoneAction } from "@/actions/subscriptions";
-import { StatusBadge } from "@/components/ui";
+import { EmptyState, StatusBadge } from "@/components/ui";
 import {
   getAlertAccentClass,
   getAlertContainerClass,
@@ -32,6 +32,7 @@ export function AlertsClient({ initialRows }: Props) {
   const [rows, setRows] = useState(initialRows);
   const [selectedTab, setSelectedTab] = useState<AlertTab>("Upcoming");
   const [toastMessage, setToastMessage] = useState("");
+  const [toastTone, setToastTone] = useState<"success" | "error">("success");
 
   const counts = useMemo(() => {
     return tabs.reduce<Record<AlertTab, number>>(
@@ -62,6 +63,7 @@ export function AlertsClient({ initialRows }: Props) {
 
     const nextDone = !row.done;
     const result = await markSubscriptionDoneAction(id, nextDone);
+    setToastTone(result.ok ? "success" : "error");
     setToastMessage(result.message);
 
     if (result.ok) {
@@ -157,15 +159,26 @@ export function AlertsClient({ initialRows }: Props) {
           ))}
 
           {visibleRows.length === 0 && (
-            <p className="rounded-md border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-500">
-              No alerts in this tab.
-            </p>
+            <EmptyState
+              title={rows.length === 0 ? "No subscriptions yet" : `No ${activeTab.label.toLowerCase()} alerts`}
+              description={
+                rows.length === 0
+                  ? "Add a subscription to start seeing renewal alerts."
+                  : "This queue is clear for the selected alert type."
+              }
+              actionLabel={rows.length === 0 ? "Add subscription" : undefined}
+              actionHref={rows.length === 0 ? "/subscriptions/new" : undefined}
+            />
           )}
         </div>
       </section>
 
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-20 rounded-2xl bg-slate-950 px-5 py-3 text-sm text-white shadow-xl sm:right-8">
+        <div
+          className={`fixed bottom-6 right-6 z-20 rounded-2xl px-5 py-3 text-sm text-white shadow-xl sm:right-8 ${
+            toastTone === "error" ? "bg-rose-700" : "bg-slate-950"
+          }`}
+        >
           {toastMessage}
           <button
             type="button"

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Panel, StatusBadge } from "@/components/ui";
+import { EmptyState, Panel, StatusBadge } from "@/components/ui";
 import {
   getAlertAccentClass,
   getAlertContainerClass,
@@ -44,9 +44,12 @@ export function AttentionPanels({ upcomingRenewals, overdueItems }: Props) {
             </div>
           ))}
           {upcomingRenewals.length === 0 && (
-            <p className="rounded-md border border-slate-200 p-4 text-sm text-slate-500">
-              No upcoming renewals need attention.
-            </p>
+            <EmptyState
+              title="No upcoming renewals"
+              description="Nothing is due in the current reminder window."
+              actionLabel="View alerts"
+              actionHref="/alerts"
+            />
           )}
         </div>
       </Panel>
@@ -80,9 +83,10 @@ export function AttentionPanels({ upcomingRenewals, overdueItems }: Props) {
             </div>
           ))}
           {overdueItems.length === 0 && (
-            <p className="rounded-md border border-slate-200 p-4 text-sm text-slate-500">
-              No overdue subscriptions.
-            </p>
+            <EmptyState
+              title="No overdue subscriptions"
+              description="Every tracked renewal is either current, upcoming, completed, or expired."
+            />
           )}
         </div>
       </Panel>

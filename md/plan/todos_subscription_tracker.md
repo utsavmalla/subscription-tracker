@@ -86,13 +86,13 @@ This checklist is derived from:
 
 ## Milestone 7: Settings and polish
 
-- [ ] Create lightweight settings page.
-- [ ] Add default currency display setting placeholder.
-- [ ] Add reminder window setting placeholder.
-- [ ] Add future email reminder toggle placeholder.
-- [ ] Add empty states for no subscriptions, no overdue items, and no search results.
-- [ ] Add loading skeletons for dashboard and tables.
-- [ ] Add API and form error states.
+- [x] Create lightweight settings page.
+- [x] Add default currency display setting placeholder.
+- [x] Add reminder window setting placeholder.
+- [x] Add future email reminder toggle placeholder.
+- [x] Add empty states for no subscriptions, no overdue items, and no search results.
+- [x] Add loading skeletons for dashboard and tables.
+- [x] Add API and form error states.
 - [ ] Verify mobile responsiveness across core screens.
 
 ## Milestone 8: Data model and status logic

@@ -6,7 +6,7 @@ import {
   createSubscriptionAction,
   updateSubscriptionAction,
 } from "@/actions/subscriptions";
-import { StatusBadge } from "@/components/ui";
+import { ErrorNotice, StatusBadge } from "@/components/ui";
 import {
   computeSubscriptionStatus as getStatusLabel,
   formatDate,
@@ -39,6 +39,7 @@ export function SubscriptionForm({
   const [values, setValues] = useState<SubscriptionFormValues>(initialValues);
   const [toastMessage, setToastMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const computedStatus = useMemo(
@@ -72,6 +73,7 @@ export function SubscriptionForm({
     event.preventDefault();
     setIsSubmitting(true);
     setFieldErrors({});
+    setFormError("");
 
     const result = values.id
       ? await updateSubscriptionAction(values.id, values)
@@ -82,6 +84,7 @@ export function SubscriptionForm({
 
     if (!result.ok) {
       setFieldErrors(result.fieldErrors ?? {});
+      setFormError(result.message);
       return;
     }
 
@@ -98,6 +101,7 @@ export function SubscriptionForm({
   const handleSecondary = async () => {
     setIsSubmitting(true);
     setFieldErrors({});
+    setFormError("");
     const result = await createSubscriptionAction(values);
     setIsSubmitting(false);
     setToastMessage(result.ok ? "Subscription saved. Add another." : result.message);
@@ -108,6 +112,7 @@ export function SubscriptionForm({
     }
 
     setFieldErrors(result.fieldErrors ?? {});
+    setFormError(result.message);
   };
 
   const handleCancel = () => {
@@ -122,6 +127,7 @@ export function SubscriptionForm({
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-6">
+        {formError && <ErrorNotice title="Subscription was not saved" message={formError} />}
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
             <div className="space-y-6">
@@ -296,15 +302,15 @@ export function SubscriptionForm({
                 type="button"
                 onClick={handleSecondary}
                 disabled={isSubmitting}
-                className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {secondaryActionLabel}
+                {isSubmitting ? "Saving..." : secondaryActionLabel}
               </button>
             )}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-800"
+              className="rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? "Saving..." : submitLabel}
             </button>

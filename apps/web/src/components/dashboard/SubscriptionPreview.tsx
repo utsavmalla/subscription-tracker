@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { StatusBadge } from "@/components/ui";
+import { EmptyState, StatusBadge } from "@/components/ui";
 import { formatDate } from "@/data/subscriptions";
 import {
   getAlertAccentClass,
@@ -62,9 +62,16 @@ export function SubscriptionPreview({ previewRows }: Props) {
           <MobileCards previewRows={filteredRows} />
         </>
       ) : (
-        <p className="rounded-md border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-500">
-          No subscriptions match this filter.
-        </p>
+        <EmptyState
+          title={previewRows.length === 0 ? "No subscriptions yet" : "No matching preview rows"}
+          description={
+            previewRows.length === 0
+              ? "Add your first subscription to populate the dashboard preview."
+              : "Choose another status filter to review the most urgent records."
+          }
+          actionLabel={previewRows.length === 0 ? "Add subscription" : undefined}
+          actionHref={previewRows.length === 0 ? "/subscriptions/new" : undefined}
+        />
       )}
     </section>
   );
