@@ -30,7 +30,7 @@ export function validateSubscriptionInput(
   const nextRenewalDate = parseDateInput(input.nextRenewal);
   const expirationDate = parseDateInput(input.expiration);
   const datePaid = parseDateInput(input.datePaid ?? "");
-  const renewalCycle = toModelCycle(input.cycle);
+  const renewalCycle = isSubscriptionCycle(input.cycle) ? toModelCycle(input.cycle) : null;
 
   if (!serviceName) {
     fieldErrors.service = "Service name is required.";
@@ -38,6 +38,10 @@ export function validateSubscriptionInput(
 
   if (amount === "invalid") {
     fieldErrors.amount = "Amount must be a non-negative number.";
+  }
+
+  if (!renewalCycle) {
+    fieldErrors.cycle = "Renewal cycle must be Monthly, Quarterly, Yearly, or One-time.";
   }
 
   if (input.nextRenewal && !nextRenewalDate) {
@@ -56,7 +60,7 @@ export function validateSubscriptionInput(
     fieldErrors.expiration = "Expiration date is required for one-time subscriptions.";
   }
 
-  if (renewalCycle !== "OneTime" && !nextRenewalDate) {
+  if (renewalCycle && renewalCycle !== "OneTime" && !nextRenewalDate) {
     fieldErrors.nextRenewal = "Next renewal date is required for recurring subscriptions.";
   }
 
@@ -65,6 +69,16 @@ export function validateSubscriptionInput(
       ok: false,
       message: "Check the highlighted fields and try again.",
       fieldErrors,
+    };
+  }
+
+  if (!renewalCycle) {
+    return {
+      ok: false,
+      message: "Check the highlighted fields and try again.",
+      fieldErrors: {
+        cycle: "Renewal cycle must be Monthly, Quarterly, Yearly, or One-time.",
+      },
     };
   }
 
@@ -109,4 +123,8 @@ function parseDateInput(value: string): Date | null {
 
   const date = new Date(`${value}T00:00:00.000Z`);
   return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function isSubscriptionCycle(value: string): value is SubscriptionMutationInput["cycle"] {
+  return ["Monthly", "Quarterly", "Yearly", "One-time"].includes(value);
 }

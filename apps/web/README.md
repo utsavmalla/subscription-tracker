@@ -11,10 +11,8 @@ For the deeper architecture walkthrough, read [`doc/TECHNICAL_GUIDE.md`](./doc/T
 - Search, filter, and sort UI for subscriptions.
 - Supabase Auth login, callback handling, and anonymous guest sessions.
 - Server Actions for trusted form mutations.
-- Route Handlers for dashboard, subscription, and reminder HTTP boundaries.
+- Route Handlers for dashboard, subscription, CSV import/export, and reminder HTTP boundaries.
 - Prisma services for user-scoped Supabase Postgres access.
-
-CSV import/export is planned but not complete.
 
 ## Tech Stack
 
@@ -123,6 +121,7 @@ Main routes:
 - `/subscriptions/new` - create subscription
 - `/subscriptions/[id]` - subscription detail
 - `/subscriptions/[id]/edit` - edit subscription
+- `/import` - CSV import preview and export
 
 ## Important Files
 
@@ -131,6 +130,7 @@ Main routes:
 - `src/app/auth/callback/route.ts` - Supabase callback handler
 - `src/actions/subscriptions.ts` - subscription form mutations
 - `src/server/auth/currentUser.ts` - current-user helpers
+- `src/server/subscriptions/csv.ts` - CSV import/export parsing and serialization
 - `src/server/subscriptions/service.ts` - subscription query and mutation service
 - `src/lib/subscriptions/status.ts` - status calculation logic
 - `prisma/schema.prisma` - database schema

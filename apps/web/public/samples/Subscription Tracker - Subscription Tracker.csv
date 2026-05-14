@@ -1,0 +1,9 @@
+Service Name,Amount,ConvertedAmount,Date Paid,Renewal Cycle,Next Renewal Date,Expiration,Status/Alert,Done?,Remarks,,Stats,
+Netflix,$7.99,"Rs1,150.56",2025-12-27,Monthly,1/27/2026,,⚠️ OVERDUE,FALSE,,,SUM of Amount,"Rs10,175.68"
+Microsoft PC game pass,$16.49,"Rs2,374.56",2025-12-21,One-Time,,3/21/2026,Active,FALSE,Auto Renewal Cancel  ,,,
+Udemy,$10.99,"Rs1,582.56",2025-12-30,One-Time,,5/26/2026,Active,FALSE,One time purchase,,,
+WorldLink,$4.0,"Rs4,068.00",2025-12-25,Quarterly,3/26/2026,3/26/2026,Active,FALSE,,,,
+Steam,,,,One-Time,,5/26/2026,Active,FALSE,Dollor Card Linked,,,
+NIMB SIP,,"Rs1,000.00",2026-01-25,Monthly,2/25/2026,,⚠️ OVERDUE,FALSE,,,,
+OpenAI,$20,,2026-04-16,Monthly,5/16/2026,5/16/2026,⏳ DUE SOON,FALSE,"Dollor Card Linked.
+Autorenew to be removed",,,

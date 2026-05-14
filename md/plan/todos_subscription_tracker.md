@@ -122,7 +122,7 @@ This checklist is derived from:
 - [x] Create subscription Server Actions for create, update, delete, and mark done.
 - [x] Create subscription Route Handlers for HTTP-style list/detail access where needed.
 - [x] Create dashboard summary query handler.
-- [ ] Create CSV import/export Route Handlers.
+- [x] Create CSV import/export Route Handlers.
 - [x] Create reminder/status refresh function boundary for scheduled execution.
 - [x] Implement list subscriptions handler/query.
 - [x] Implement get subscription by id handler/query.
@@ -139,14 +139,14 @@ This checklist is derived from:
 
 ## Milestone 10: CSV import and export
 
-- [ ] Implement `POST /subscriptions/import`.
-- [ ] Implement `GET /subscriptions/export`.
-- [ ] Map spreadsheet columns to subscription fields.
-- [ ] Validate imported rows before saving.
-- [ ] Show import errors without blocking valid rows where possible.
-- [ ] Add import preview support for the frontend.
-- [ ] Export all subscriptions to CSV.
-- [ ] Export filtered subscriptions to CSV.
+- [x] Implement `POST /subscriptions/import`.
+- [x] Implement `GET /subscriptions/export`.
+- [x] Map spreadsheet columns to subscription fields.
+- [x] Validate imported rows before saving.
+- [x] Show import errors without blocking valid rows where possible.
+- [x] Add import preview support for the frontend.
+- [x] Export all subscriptions to CSV.
+- [x] Export filtered subscriptions to CSV.
 
 ## Milestone 11: Reminders and scheduled jobs
 
@@ -171,16 +171,16 @@ This checklist is derived from:
 
 ## MVP acceptance checklist
 
-- [ ] User can create, read, update, and delete subscriptions.
-- [ ] User can import spreadsheet data with minimal cleanup.
-- [ ] User can export subscription data to CSV.
-- [ ] Dashboard shows active, upcoming, overdue, and expired counts correctly.
-- [ ] Status logic works for recurring subscriptions.
-- [ ] Status logic works for one-time subscriptions.
-- [ ] User can mark records done.
-- [ ] User can search, filter, and sort subscriptions.
+- [x] User can create, read, update, and delete subscriptions.
+- [x] User can import spreadsheet data with minimal cleanup.
+- [x] User can export subscription data to CSV.
+- [x] Dashboard shows active, upcoming, overdue, and expired counts correctly.
+- [x] Status logic works for recurring subscriptions.
+- [x] Status logic works for one-time subscriptions.
+- [x] User can mark records done.
+- [x] User can search, filter, and sort subscriptions.
 - [ ] App handles at least 100 subscriptions smoothly.
-- [ ] User can identify overdue and upcoming subscriptions from the dashboard quickly.
+- [x] User can identify overdue and upcoming subscriptions from the dashboard quickly.
 
 ## Future improvements
 

@@ -1,0 +1,6 @@
+service,amount,cycle,nextRenewal,expiration,datePaid,done,remarks
+Netflix,15.49,Monthly,2026-06-01,,2026-05-01,false,Streaming plan
+Figma,144.00,Yearly,2027-01-15,,2026-01-15,yes,Annual design tool
+Notion,12,Quarterly,07/01/2026,,05/01/2026,no,Team workspace
+Domain Renewal,18.99,One-time,,2026-12-31,2026-01-01,completed,One-time domain purchase
+,9.99,Monthly,2026-06-15,,,false,Invalid row to confirm service validation
