@@ -190,7 +190,7 @@ export async function markSubscriptionDone(
     expirationDate: subscription.expirationDate,
   });
 
-  await prisma.subscription.update({
+  const updated = await prisma.subscription.update({
     where: { id_userId: { id, userId } },
     data: {
       done,
@@ -203,6 +203,66 @@ export async function markSubscriptionDone(
     ok: true,
     message: done ? "Subscription marked done." : "Subscription reopened.",
     id,
+    subscription: mapSubscriptionRow(updated),
+  };
+}
+
+export async function markSubscriptionPaid(
+  userId: string,
+  id: string,
+): Promise<ActionResult> {
+  const subscription = await prisma.subscription.findFirst({
+    where: { id, userId },
+  });
+
+  if (!subscription) {
+    return {
+      ok: false,
+      message: "Subscription was not found.",
+    };
+  }
+
+  if (subscription.renewalCycle === "OneTime") {
+    return {
+      ok: false,
+      message: "One-time subscriptions should be marked done instead.",
+      id,
+    };
+  }
+
+  if (!subscription.nextRenewalDate) {
+    return {
+      ok: false,
+      message: "Next renewal date is required before marking this subscription paid.",
+      id,
+    };
+  }
+
+  const datePaid = startOfUtcDay(subscription.nextRenewalDate);
+  const nextRenewalDate = addCycleMonths(datePaid, subscription.renewalCycle);
+  const status = calculateSubscriptionStatus({
+    renewalCycle: subscription.renewalCycle,
+    done: false,
+    nextRenewalDate,
+    expirationDate: subscription.expirationDate,
+  });
+
+  const updated = await prisma.subscription.update({
+    where: { id_userId: { id, userId } },
+    data: {
+      datePaid,
+      nextRenewalDate,
+      done: false,
+      status: status.status,
+      alertState: status.alertState,
+    },
+  });
+
+  return {
+    ok: true,
+    message: "Subscription marked paid.",
+    id,
+    subscription: mapSubscriptionRow(updated),
   };
 }
 
@@ -469,6 +529,36 @@ function formatDaysOverdue(value: Date | null): string {
 
 function startOfUtcDay(value: Date): Date {
   return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()));
+}
+
+function addCycleMonths(date: Date, cycle: Subscription["renewalCycle"]): Date {
+  const monthsToAdd = getCycleMonthIncrement(cycle);
+  const targetMonthIndex = date.getUTCMonth() + monthsToAdd;
+  const targetYear = date.getUTCFullYear() + Math.floor(targetMonthIndex / 12);
+  const normalizedTargetMonthIndex = targetMonthIndex % 12;
+  const targetDay = Math.min(
+    date.getUTCDate(),
+    getDaysInMonth(targetYear, normalizedTargetMonthIndex),
+  );
+
+  return new Date(Date.UTC(targetYear, normalizedTargetMonthIndex, targetDay));
+}
+
+function getCycleMonthIncrement(cycle: Subscription["renewalCycle"]): number {
+  switch (cycle) {
+    case "Monthly":
+      return 1;
+    case "Quarterly":
+      return 3;
+    case "Yearly":
+      return 12;
+    case "OneTime":
+      return 0;
+  }
+}
+
+function getDaysInMonth(year: number, monthIndex: number): number {
+  return new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
 }
 
 function buildReminderEvent(

@@ -66,6 +66,7 @@ export type ActionResult = {
   ok: boolean;
   message: string;
   id?: string;
+  subscription?: SubscriptionRow;
   fieldErrors?: Partial<Record<keyof SubscriptionMutationInput, string>>;
 };
 

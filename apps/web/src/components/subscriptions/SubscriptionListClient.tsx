@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import {
   deleteSubscriptionAction,
   markSubscriptionDoneAction,
+  markSubscriptionPaidAction,
 } from "@/actions/subscriptions";
 import { SubscriptionFilters } from "@/components/subscriptions/SubscriptionFilters";
 import {
@@ -128,12 +129,21 @@ export function SubscriptionListClient({ initialRows }: Props) {
       return;
     }
 
+    const isOneTime = row.cycle === "One-time";
     const nextDone = !row.done;
-    const result = await markSubscriptionDoneAction(id, nextDone);
+    const result = isOneTime
+      ? await markSubscriptionDoneAction(id, nextDone)
+      : await markSubscriptionPaidAction(id);
     setToastTone(result.ok ? "success" : "error");
     setToastMessage(result.message);
 
-    if (result.ok) {
+    if (result.ok && result.subscription) {
+      setRows((current) =>
+        current.map((item) =>
+          item.id === id ? result.subscription ?? item : item,
+        ),
+      );
+    } else if (result.ok && isOneTime) {
       setRows((current) =>
         current.map((item) =>
           item.id === id
