@@ -4,7 +4,10 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { markSubscriptionDoneAction } from "@/actions/subscriptions";
+import {
+  markSubscriptionDoneAction,
+  markSubscriptionPaidAction,
+} from "@/actions/subscriptions";
 import { EmptyState, StatusBadge } from "@/components/ui";
 import {
   getAlertAccentClass,
@@ -61,12 +64,21 @@ export function AlertsClient({ initialRows }: Props) {
       return;
     }
 
+    const isOneTime = row.cycle === "One-time";
     const nextDone = !row.done;
-    const result = await markSubscriptionDoneAction(id, nextDone);
+    const result = isOneTime
+      ? await markSubscriptionDoneAction(id, nextDone)
+      : await markSubscriptionPaidAction(id);
     setToastTone(result.ok ? "success" : "error");
     setToastMessage(result.message);
 
-    if (result.ok) {
+    if (result.ok && result.subscription) {
+      setRows((current) =>
+        current.map((item) =>
+          item.id === id ? result.subscription ?? item : item,
+        ),
+      );
+    } else if (result.ok && isOneTime) {
       setRows((current) =>
         current.map((item) =>
           item.id === id
@@ -79,8 +91,10 @@ export function AlertsClient({ initialRows }: Props) {
             : item,
         ),
       );
+    }
 
-      if (nextDone) {
+    if (result.ok) {
+      if (isOneTime && nextDone) {
         setSelectedTab("Completed");
       }
 
@@ -227,7 +241,7 @@ function AlertRow({
             onClick={() => onMarkDone(row.id)}
             className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
           >
-            {row.done ? "Undo" : "Mark done"}
+            {row.cycle === "One-time" ? (row.done ? "Undo" : "Mark done") : "Mark paid"}
           </button>
           <Link
             href={`/subscriptions/${row.id}/edit`}

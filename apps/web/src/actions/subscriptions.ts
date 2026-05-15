@@ -7,6 +7,7 @@ import {
   createSubscription,
   deleteSubscription,
   markSubscriptionDone,
+  markSubscriptionPaid,
   updateSubscription,
 } from "@/server/subscriptions/service";
 import type {
@@ -65,6 +66,17 @@ export async function markSubscriptionDoneAction(
 ): Promise<ActionResult> {
   const user = await requireCurrentUser();
   const result = await markSubscriptionDone(user.id, id, done);
+
+  if (result.ok) {
+    revalidateSubscriptionPaths(id);
+  }
+
+  return result;
+}
+
+export async function markSubscriptionPaidAction(id: string): Promise<ActionResult> {
+  const user = await requireCurrentUser();
+  const result = await markSubscriptionPaid(user.id, id);
 
   if (result.ok) {
     revalidateSubscriptionPaths(id);
