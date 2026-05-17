@@ -5,7 +5,9 @@ import { usePathname } from "next/navigation";
 
 import { navItems } from "@/data/dashboard";
 
-export function SidebarNav() {
+export function SidebarNav({
+  onNavigate,
+}: Readonly<{ onNavigate?: () => void }>) {
   const pathname = usePathname() ?? "/";
   const exactActiveHref = navItems.find((item) => item.href === pathname)?.href;
 
@@ -22,6 +24,7 @@ export function SidebarNav() {
           <Link
             key={item.label}
             href={item.href}
+            onClick={onNavigate}
             className={`block rounded-md px-3 py-2.5 text-sm font-medium ${
               isActive
                 ? "bg-teal-50 text-teal-800"
