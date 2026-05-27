@@ -3,12 +3,14 @@ import {
   refreshAllSubscriptionStatuses,
   refreshSubscriptionStatuses,
 } from "@/server/subscriptions/service";
+import { sendDueTodayEmailNotifications } from "@/server/notifications/email";
 
 export async function POST(request: Request) {
   const authorizedJob = isAuthorizedScheduledRefresh(request);
   if (authorizedJob === true) {
     const result = await refreshAllSubscriptionStatuses();
-    return Response.json(result);
+    const email = await sendDueTodayEmailNotifications();
+    return Response.json({ ...result, email });
   }
 
   if (authorizedJob === false) {
@@ -21,8 +23,9 @@ export async function POST(request: Request) {
   }
 
   const result = await refreshSubscriptionStatuses(user.id);
+  const email = await sendDueTodayEmailNotifications(user.id);
 
-  return Response.json(result);
+  return Response.json({ ...result, email });
 }
 
 function isAuthorizedScheduledRefresh(request: Request): boolean | null {

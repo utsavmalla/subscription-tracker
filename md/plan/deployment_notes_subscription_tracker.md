@@ -216,6 +216,24 @@ The app now supports a production-safe scheduled refresh path:
 - Schedule the Edge Function with Supabase `pg_cron` and `pg_net`, preferably shortly after midnight UTC.
 - Store the function URL and authorization key in Supabase Vault for the scheduled SQL.
 
+## Resend due-today email reminder setup
+
+The app supports production due-today reminder emails from Settings:
+
+- Vercel needs these server-only environment variables:
+  - `RESEND_API_KEY`
+  - `EMAIL_FROM`
+- Create a Resend API key.
+- Verify the sending domain in Resend and use that domain in `EMAIL_FROM`.
+
+```text
+RESEND_API_KEY=re_...
+EMAIL_FROM=Subscription Tracker <reminders@YOUR_DOMAIN>
+```
+
+- Users enable email reminders from Settings.
+- The scheduled refresh sends Resend emails only for pending `DueToday` reminder events.
+
 Example schedule SQL:
 
 ```sql

@@ -91,6 +91,8 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SITE_URL
 SUPABASE_SERVICE_ROLE_KEY
 REMINDER_REFRESH_SECRET
+RESEND_API_KEY
+EMAIL_FROM
 DATABASE_URL
 DIRECT_URL
 ```
@@ -100,6 +102,7 @@ Notes:
 - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `NEXT_PUBLIC_SITE_URL` are browser-safe public values.
 - `SUPABASE_SERVICE_ROLE_KEY` is server-only. Never expose it with a `NEXT_PUBLIC_` prefix.
 - `REMINDER_REFRESH_SECRET` is server-only and authorizes the scheduled reminder refresh job.
+- `RESEND_API_KEY` and `EMAIL_FROM` are server-only values for Resend due-today reminder email delivery.
 - `DATABASE_URL` is used by the running app. Use Supabase transaction pooling for serverless runtime traffic.
 - `DIRECT_URL` is used by Prisma migrations and validation. Use the Supabase session pooler or a direct database connection.
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` is still supported for older Supabase projects that have not moved to publishable keys.
@@ -216,6 +219,13 @@ REMINDER_REFRESH_SECRET=the-same-secret-configured-on-the-web-app
 
 Schedule the function from Supabase Postgres with `pg_cron` and `pg_net`, preferably shortly after midnight UTC. Store the Supabase function URL and authorization key in Supabase Vault for the scheduled SQL.
 
+For email reminders, create a Resend API key, verify your sending domain in Resend, and set the email environment variables in Vercel:
+
+```text
+RESEND_API_KEY=re_...
+EMAIL_FROM=Subscription Tracker <reminders@YOUR_DOMAIN>
+```
+
 ## Documentation
 
 - `apps/web/README.md` - web app quickstart
@@ -231,6 +241,6 @@ Schedule the function from Supabase Postgres with `pg_cron` and `pg_net`, prefer
 
 ## Current Status
 
-The app currently includes the dashboard, subscription management pages, Prisma-backed Supabase data access, Supabase Auth, email magic links, capped guest mode, and daily in-app reminder/status refresh.
+The app currently includes the dashboard, subscription management pages, Prisma-backed Supabase data access, Supabase Auth, email magic links, capped guest mode, daily in-app reminder/status refresh, and Resend due-today email reminders.
 
 Remaining planned work includes CSV workflows, alert UI polish, and optional external notifications.

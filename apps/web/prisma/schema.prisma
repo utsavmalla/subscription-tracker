@@ -89,3 +89,15 @@ model ReminderEvent {
   @@index([userId, status, scheduledFor], map: "reminder_events_user_status_scheduled_idx")
   @@map("reminder_events")
 }
+
+model UserNotificationSetting {
+  userId          String    @id @map("user_id") @db.Uuid
+  emailEnabled    Boolean   @default(false) @map("email_enabled")
+  emailTo         String?   @map("email_to") @db.VarChar(320)
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([emailEnabled], map: "user_notification_settings_email_enabled_idx")
+  @@map("user_notification_settings")
+}

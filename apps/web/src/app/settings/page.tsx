@@ -1,5 +1,8 @@
 import { AppShell } from "@/components/layout";
+import { EmailReminderSettings } from "@/components/settings/EmailReminderSettings";
 import { Panel } from "@/components/ui";
+import { getEmailSettings } from "@/server/notifications/email";
+import { requireCurrentUser } from "@/server/auth/currentUser";
 
 const settingRows = [
   {
@@ -14,7 +17,10 @@ const settingRows = [
   },
 ];
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const user = await requireCurrentUser();
+  const emailSettings = await getEmailSettings(user.id, user.email);
+
   return (
     <AppShell>
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -27,7 +33,7 @@ export default function SettingsPage() {
               Workspace preferences
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              Review planned preferences for currency, reminder timing, and future email alerts.
+              Review planned preferences for currency, reminder timing, and email alerts.
             </p>
           </div>
           <span className="inline-flex w-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
@@ -59,25 +65,12 @@ export default function SettingsPage() {
         </Panel>
 
         <Panel title="Email reminders">
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="font-semibold text-slate-950">Email alerts</p>
-                <p className="mt-1 text-sm leading-6 text-slate-600">
-                  Email delivery is planned for the later reminder integration milestone.
-                </p>
-              </div>
-              <div
-                className="relative h-7 w-12 shrink-0 rounded-full bg-slate-300"
-                aria-label="Email alerts off"
-                role="switch"
-                aria-checked="false"
-                aria-disabled="true"
-              >
-                <span className="absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-sm" />
-              </div>
-            </div>
-          </div>
+          <EmailReminderSettings
+            settings={{
+              ...emailSettings,
+              canEnableEmail: !user.isAnonymous && Boolean(user.email),
+            }}
+          />
         </Panel>
       </section>
     </AppShell>

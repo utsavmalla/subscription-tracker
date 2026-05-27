@@ -59,13 +59,15 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SITE_URL
 SUPABASE_SERVICE_ROLE_KEY
 REMINDER_REFRESH_SECRET
+RESEND_API_KEY
+EMAIL_FROM
 DATABASE_URL
 DIRECT_URL
 ```
 
 `NEXT_PUBLIC_SUPABASE_ANON_KEY` is also supported for older Supabase projects.
 
-Use `DATABASE_URL` for runtime app traffic, preferably through Supabase transaction pooling. Use `DIRECT_URL` for Prisma validation and migrations, preferably through the session pooler or a direct database connection. `REMINDER_REFRESH_SECRET` is server-only and must match the secret configured for the Supabase scheduled Edge Function.
+Use `DATABASE_URL` for runtime app traffic, preferably through Supabase transaction pooling. Use `DIRECT_URL` for Prisma validation and migrations, preferably through the session pooler or a direct database connection. `REMINDER_REFRESH_SECRET` is server-only and must match the secret configured for the Supabase scheduled Edge Function. `RESEND_API_KEY` and `EMAIL_FROM` are server-only values for Resend due-today reminder delivery.
 
 ## Supabase Setup
 
@@ -154,3 +156,10 @@ The `/api/reminders/refresh` endpoint supports two modes:
 - `Authorization: Bearer <REMINDER_REFRESH_SECRET>` refreshes all users for the scheduled job.
 
 Deploy `supabase/functions/daily-reminder-refresh`, set `APP_REFRESH_URL=https://YOUR_DOMAIN/api/reminders/refresh` and `REMINDER_REFRESH_SECRET` as Supabase Edge Function secrets, then schedule it with Supabase `pg_cron` and `pg_net`. Store the function URL and authorization key in Supabase Vault for the scheduled SQL.
+
+For email reminders, create a Resend API key, verify your sending domain in Resend, then set:
+
+```text
+RESEND_API_KEY=re_...
+EMAIL_FROM=Subscription Tracker <reminders@YOUR_DOMAIN>
+```
