@@ -195,6 +195,7 @@ Deployment ID: dpl_91mXREaSiNnnLHJHVdMauVUp5E7C
 - Public login route is reachable.
 - Supabase Auth settings must include the production callback URL.
 - Authenticated dashboard/subscription flows should be smoke tested after signing in.
+- Staging setup is tracked separately in `md/plan/staging_env_subscription_tracker.md`.
 
 ## Remaining checks
 
