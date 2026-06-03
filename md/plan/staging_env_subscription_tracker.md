@@ -7,8 +7,9 @@ Date: 2026-06-03
 - Git branch: `staging`.
 - Vercel project: `subscription-tracker`.
 - Vercel target: Preview deployment scoped to the `staging` branch.
+- Vercel tier note: use the default Preview environment for staging because Custom Environments are not available on the free tier.
 - Vercel root directory: `apps/web`.
-- Staging app URL: use the Vercel-generated branch preview URL for `staging`.
+- Staging app URL: use the Vercel-generated branch preview URL for `staging`, typically `https://subscription-tracker-git-staging-utsav-mallas-projects.vercel.app`.
 - Supabase: use a separate staging Supabase project, not the production project.
 - Database runtime connection: staging Supabase Postgres transaction pooler through `DATABASE_URL`.
 - Database migration/admin connection: staging Supabase session pooler or direct connection through `DIRECT_URL`.
@@ -27,7 +28,7 @@ DATABASE_URL
 DIRECT_URL
 ```
 
-Use branch-scoped Preview variables so other preview branches do not accidentally receive staging credentials:
+Use branch-scoped Preview variables so other preview branches do not accidentally receive staging credentials. This keeps staging on the free-tier Preview environment instead of using a paid Custom Environment:
 
 ```powershell
 npx vercel@latest env add NEXT_PUBLIC_SUPABASE_URL preview --git-branch=staging
